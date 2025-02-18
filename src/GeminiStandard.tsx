@@ -80,24 +80,22 @@ const SubjectStandardDisplay: React.FC<{
                 return (
                   <li
                     key={standard.id}
-                    className={`standard my-2 ${
+                    className={`standard my-2 group p-1 ${
                       mastery === "completed"
-                        ? "text-green-500"
+                        ? " text-green-500 hover:bg-green-100"
                         : mastery === "needs_improvement"
-                        ? "text-yellow-500"
-                        : ""
-                    } group`}
+                        ? " text-yellow-500 hover:bg-yellow-100"
+                        : "hover:bg-blue-100"
+                    } hover:shadow-lg rounded transition duration-200 ease-in-out`}
+                    onClick={() =>
+                      handleStandardClick(
+                        subjectStandard.subject,
+                        standard.id,
+                        mastery
+                      )
+                    }
                   >
-                    <button
-                      className="flex items-center w-full text-left"
-                      onClick={() =>
-                        handleStandardClick(
-                          subjectStandard.subject,
-                          standard.id,
-                          mastery
-                        )
-                      }
-                    >
+                    <button className={`flex items-center w-full text-left  `}>
                       <h4 className="text-gray-800">{standard.description}</h4>
                       <span
                         className={`ml-2 px-2 py-1 rounded text-xs font-semibold text-black-500  ${

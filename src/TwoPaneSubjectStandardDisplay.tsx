@@ -34,7 +34,7 @@ const TwoPaneSubjectStandardDisplay: React.FC<{
 
   return (
     <div className="two-pane-display flex overflow-y-scroll bg-gray-100">
-      <div className="toc w-1/5 p-4  overflow-y-auto shadow-md">
+      <div className="toc hidden lg:block min-w-1/5 p-4 overflow-y-auto shadow-md">
         <h3 className="text-lg font-semibold mb-2 text-gray-900">
           Table of Contents
         </h3>
@@ -56,7 +56,7 @@ const TwoPaneSubjectStandardDisplay: React.FC<{
 
       <div
         id={STANDARDS_DISPLAY_ID}
-        className="standards w-4/5 p-4 overflow-y-auto shadow-md bg-gray-200"
+        className="standards p-4 overflow-y-auto shadow-md bg-gray-200"
       >
         {subjectStandards.map((standard) => (
           <SubjectStandardDisplay
