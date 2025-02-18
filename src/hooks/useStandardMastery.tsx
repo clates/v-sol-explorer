@@ -14,10 +14,12 @@ const useStandardMastery = () => {
     if (storedMastery) {
       setMasteryStatus(JSON.parse(storedMastery));
     }
-  });
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem("mastery", JSON.stringify(masteryStatus));
+    if (Object.keys(masteryStatus).length > 0) {
+      localStorage.setItem("mastery", JSON.stringify(masteryStatus));
+    }
   }, [masteryStatus]);
 
   const updateMastery = (
@@ -25,6 +27,7 @@ const useStandardMastery = () => {
     standardId: string,
     status: MasteryStatus
   ) => {
+    console.log("Setting mastery status...")
     setMasteryStatus((prevStatus) => ({
       ...prevStatus,
       [subject]: {
@@ -36,6 +39,7 @@ const useStandardMastery = () => {
 
   const clearMastery = (subject: string, standardId: string) => {
     setMasteryStatus((prevStatus) => {
+        console.log("Clearing mastery status...")
       const newStatus = { ...prevStatus };
       delete newStatus[subject][standardId];
       return newStatus;

@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import { SubjectStandard } from "./types";
-import useStandardMastery from "./hooks/useStandardMastery";
+import useStandardMastery, { MasteryStatus } from "./hooks/useStandardMastery";
+import VisibilityContext from "./context/VisibilityContext";
 
 const SubjectStandardDisplay: React.FC<{
   subjectStandard: SubjectStandard;
 }> = ({ subjectStandard }) => {
-  const { updateMastery, clearMastery, getMastery } = useStandardMastery();
+  const { updateMastery, getMastery } = useStandardMastery();
+  const { hideCompleted } = useContext(VisibilityContext);
 
   const metadataLabels: { key: keyof SubjectStandard; color: string }[] = [
     {
@@ -25,6 +27,21 @@ const SubjectStandardDisplay: React.FC<{
       color: "bg-red-100",
     },
   ];
+
+  const handleStandardClick = (
+    subject: string,
+    standardId: string,
+    mastery: MasteryStatus
+  ) => {
+    // Cycle through mastery statuses
+    if (mastery === "completed") {
+      updateMastery(subject, standardId, "not_started");
+    } else if (mastery === "needs_improvement") {
+      updateMastery(subject, standardId, "completed");
+    } else if (mastery === "not_started") {
+      updateMastery(subject, standardId, "needs_improvement");
+    }
+  };
 
   return (
     <div
@@ -52,28 +69,63 @@ const SubjectStandardDisplay: React.FC<{
               {category.title}
             </h3>
             <ul className="list-disc ml-4">
-              {category.standards?.map((standard) => (
-                <li key={standard.id} className="standard my-2">
-                  <div className="flex items-center">
-                    <h4 className="text-gray-800">{standard.description}</h4>
-                    <span className="ml-2 px-2 py-1 rounded text-xs font-semibold bg-blue-500 text-white">
-                      {standard.id}
-                    </span>
-                  </div>
-                  {standard.substandards && (
-                    <ul className="list-disc ml-4">
-                      {standard.substandards.map((substandard) => (
-                        <li
-                          key={substandard.id}
-                          className="substandard text-gray-600"
-                        >
-                          {substandard.description}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
+              {category.standards?.map((standard) => {
+                const mastery = getMastery(
+                  subjectStandard.subject,
+                  standard.id
+                );
+                if (mastery === "completed" && hideCompleted) {
+                  return null;
+                }
+                return (
+                  <li
+                    key={standard.id}
+                    className={`standard my-2 ${
+                      mastery === "completed"
+                        ? "text-green-500"
+                        : mastery === "needs_improvement"
+                        ? "text-yellow-500"
+                        : ""
+                    }`}
+                  >
+                    <button
+                      className="flex items-center w-full text-left"
+                      onClick={() =>
+                        handleStandardClick(
+                          subjectStandard.subject,
+                          standard.id,
+                          mastery
+                        )
+                      }
+                    >
+                      <h4 className="text-gray-800">{standard.description}</h4>
+                      <span
+                        className={`ml-2 px-2 py-1 rounded text-xs font-semibold ${
+                          mastery === "completed" ? "bg-green-200" : ""
+                        } ${
+                          mastery === "needs_improvement" ? "bg-yellow-200" : ""
+                        } ${
+                          mastery === "not_started" ? "bg-blue-200" : ""
+                        }  text-white`}
+                      >
+                        {standard.id}
+                      </span>
+                    </button>
+                    {standard.substandards && (
+                      <ul className="list-disc ml-4">
+                        {standard.substandards.map((substandard) => (
+                          <li
+                            key={substandard.id}
+                            className="substandard text-gray-600"
+                          >
+                            {substandard.description}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

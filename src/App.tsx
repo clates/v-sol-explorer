@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { SubjectStandard } from "./types";
 import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
+import VisibilityContext from "./context/VisibilityContext";
 
 const App: React.FC = () => {
   const { standardsData, loading, error } = useStandardsData({
@@ -14,6 +15,7 @@ const App: React.FC = () => {
   const [filteredSubjectStandards, setFilteredSubjectStandards] = useState<
     SubjectStandard[]
   >([]);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
   const subjects = [
     ...new Set(standardsData.map((standard) => standard.subject)),
@@ -28,6 +30,10 @@ const App: React.FC = () => {
 
   const handleGradeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedGrade(event.target.value);
+  };
+
+  const handleHideCompletedChange = () => {
+    setHideCompleted((prevHideCompleted) => !prevHideCompleted);
   };
 
   const filterStandards = () => {
@@ -51,6 +57,17 @@ const App: React.FC = () => {
   useEffect(() => {
     filterStandards();
   }, [selectedSubject, selectedGrade, standardsData]);
+
+  useEffect(() => {
+    const storedHideCompleted = localStorage.getItem("hideCompleted");
+    if (storedHideCompleted) {
+      setHideCompleted(JSON.parse(storedHideCompleted));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("hideCompleted", JSON.stringify(hideCompleted));
+  }, [hideCompleted]);
 
   return (
     <div className="bg-gray-100 min-h-screen max-h-screen p-4 flex flex-col">
@@ -101,9 +118,24 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      <TwoPaneSubjectStandardDisplay
-        subjectStandards={filteredSubjectStandards} // Pass as an array
-      />
+      <div className="flex items-center space-x-2 mb-4">
+        <input
+          type="checkbox"
+          id="hideCompleted"
+          checked={hideCompleted}
+          onChange={handleHideCompletedChange}
+          className="form-checkbox rounded text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <label htmlFor="hideCompleted" className="text-gray-700">
+          Hide Completed Standards
+        </label>
+      </div>
+
+      <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
+        <TwoPaneSubjectStandardDisplay
+          subjectStandards={filteredSubjectStandards} // Pass as an array
+        />
+      </VisibilityContext.Provider>
     </div>
   );
 };
