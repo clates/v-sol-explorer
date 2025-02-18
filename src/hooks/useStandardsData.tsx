@@ -27,15 +27,18 @@ const useStandardsData = ({ useCache = true }) => {
       }
     }
 
+    const URL_PREFIX =
+      import.meta.env.BASE_URL !== "/" ? `${import.meta.env.BASE_URL}` : "";
     const urls = [
-      "/standards/computer_science.json",
-      "/standards/english_writing.json",
-      "/standards/history.json",
-      "/standards/mathematics.json",
-      "/standards/science.json",
+      `${URL_PREFIX}standards/computer_science.json`,
+      `${URL_PREFIX}standards/english_writing.json`,
+      `${URL_PREFIX}standards/history.json`,
+      `${URL_PREFIX}standards/mathematics.json`,
+      `${URL_PREFIX}standards/science.json`,
       // Add more URLs as needed
     ];
 
+    console.log(urls);
     Promise.all(
       urls.map((url) =>
         fetch(url).then((res) => {

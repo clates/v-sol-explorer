@@ -32,7 +32,7 @@ jobs:
         run: bun install
 
       - name: Build site
-        run: bun run build
+        run: VITE_BASE_URL=/v-sol-explorer/ bun run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
