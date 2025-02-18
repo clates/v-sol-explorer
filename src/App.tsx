@@ -14,7 +14,7 @@ const getVisibilityStatusFromStorage = () => {
 };
 
 const App: React.FC = () => {
-  const { standardsData} = useStandardsData({
+  const { standardsData } = useStandardsData({
     useCache: false,
   }); // Set useCache to false for testing
 
@@ -78,7 +78,7 @@ const App: React.FC = () => {
         Virginia SOL Navigator
       </h1>
 
-      <div className="flex space-x-4 mb-4">
+      <div className="flex space-x-4 mb-4 items-center justify-center content-center">
         <div className="w-1/2">
           <label
             htmlFor="subject"
@@ -119,19 +119,18 @@ const App: React.FC = () => {
             ))}
           </select>
         </div>
-      </div>
-
-      <div className="flex items-center space-x-2 mb-4">
-        <input
-          type="checkbox"
-          id="hideCompleted"
-          checked={hideCompleted}
-          onChange={handleHideCompletedChange}
-          className="form-checkbox rounded text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <label htmlFor="hideCompleted" className="text-gray-700">
-          Hide Completed Standards
-        </label>
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="hideCompleted"
+            checked={hideCompleted}
+            onChange={handleHideCompletedChange}
+            className="form-checkbox rounded text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <label htmlFor="hideCompleted" className="text-gray-700">
+            Hide Completed Standards
+          </label>
+        </div>
       </div>
 
       <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>

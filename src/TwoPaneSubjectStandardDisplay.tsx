@@ -56,7 +56,7 @@ const TwoPaneSubjectStandardDisplay: React.FC<{
 
       <div
         id={STANDARDS_DISPLAY_ID}
-        className="standards p-4 overflow-y-auto shadow-md bg-gray-200"
+        className="standards p-4 overflow-y-auto shadow-md bg-gray-200 [scroll-behavior:smooth]"
       >
         {subjectStandards.map((standard) => (
           <SubjectStandardDisplay
