@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { SubjectStandard } from "./types";
 import useStandardMastery, { MasteryStatus } from "./hooks/useStandardMastery";
 import VisibilityContext from "./context/VisibilityContext";

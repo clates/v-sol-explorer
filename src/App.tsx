@@ -14,7 +14,7 @@ const getVisibilityStatusFromStorage = () => {
 };
 
 const App: React.FC = () => {
-  const { standardsData, loading, error } = useStandardsData({
+  const { standardsData} = useStandardsData({
     useCache: false,
   }); // Set useCache to false for testing
 
