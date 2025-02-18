@@ -48,14 +48,14 @@ const SubjectStandardDisplay: React.FC<{
       id={subjectStandard.id}
       className="subject-standard-card p-4 bg-white rounded-lg shadow-md mb-4"
     >
-      <div className="metadata flex space-x-4 mb-4">
+    <div className="metadata flex flex-wrap justify-between space-x-4 mb-4">
         {metadataLabels.map(({ key, color }) => (
           <div
             key={key}
             className={`flex items-center px-2 py-1 rounded ${color}`}
           >
             <span className="text-xs font-semibold text-gray-700">{key}:</span>
-            <span className="ml-1 text-xs text-gray-900">
+            <span className="ml-1 text-xs overflow-ellipsis text-gray-900">
               {subjectStandard[key] as string}
             </span>
           </div>
