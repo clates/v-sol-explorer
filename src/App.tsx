@@ -5,6 +5,14 @@ import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
 import VisibilityContext from "./context/VisibilityContext";
 
+const getVisibilityStatusFromStorage = () => {
+  const storedHideCompleted = localStorage.getItem("hideCompleted");
+  if (storedHideCompleted) {
+    return !!JSON.parse(storedHideCompleted);
+  }
+  return false;
+};
+
 const App: React.FC = () => {
   const { standardsData, loading, error } = useStandardsData({
     useCache: false,
@@ -15,7 +23,9 @@ const App: React.FC = () => {
   const [filteredSubjectStandards, setFilteredSubjectStandards] = useState<
     SubjectStandard[]
   >([]);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const [hideCompleted, setHideCompleted] = useState(
+    getVisibilityStatusFromStorage()
+  );
 
   const subjects = [
     ...new Set(standardsData.map((standard) => standard.subject)),
@@ -57,13 +67,6 @@ const App: React.FC = () => {
   useEffect(() => {
     filterStandards();
   }, [selectedSubject, selectedGrade, standardsData]);
-
-  useEffect(() => {
-    const storedHideCompleted = localStorage.getItem("hideCompleted");
-    if (storedHideCompleted) {
-      setHideCompleted(JSON.parse(storedHideCompleted));
-    }
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("hideCompleted", JSON.stringify(hideCompleted));

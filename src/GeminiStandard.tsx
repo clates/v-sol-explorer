@@ -86,7 +86,7 @@ const SubjectStandardDisplay: React.FC<{
                         : mastery === "needs_improvement"
                         ? "text-yellow-500"
                         : ""
-                    }`}
+                    } group`}
                   >
                     <button
                       className="flex items-center w-full text-left"
@@ -100,13 +100,11 @@ const SubjectStandardDisplay: React.FC<{
                     >
                       <h4 className="text-gray-800">{standard.description}</h4>
                       <span
-                        className={`ml-2 px-2 py-1 rounded text-xs font-semibold ${
+                        className={`ml-2 px-2 py-1 rounded text-xs font-semibold text-black-500  ${
                           mastery === "completed" ? "bg-green-200" : ""
                         } ${
                           mastery === "needs_improvement" ? "bg-yellow-200" : ""
-                        } ${
-                          mastery === "not_started" ? "bg-blue-200" : ""
-                        }  text-white`}
+                        } ${mastery === "not_started" ? "bg-blue-200" : ""}`}
                       >
                         {standard.id}
                       </span>
