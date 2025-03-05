@@ -5,6 +5,7 @@ import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
 import VisibilityContext from "./context/VisibilityContext";
 import SettingsFlyout from "./components/settingsFlyout";
+import { ProfileProvider } from "./context/ProfileContext";
 
 const getVisibilityStatusFromStorage = () => {
   const storedHideCompleted = localStorage.getItem("hideCompleted");
@@ -70,61 +71,63 @@ const App: React.FC = () => {
   }, [hideCompleted]);
 
   return (
-    <div className="bg-gray-100 min-h-screen max-h-screen p-4 flex flex-col">
-      <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">
-        Virginia SOL Navigator
-      </h1>
+    <ProfileProvider>
+      <div className="bg-gray-100 min-h-screen max-h-screen p-4 flex flex-col">
+        <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">
+          Virginia SOL Navigator
+        </h1>
 
-      <div className="flex space-x-4 mb-4 items-center justify-center content-center">
-        <div className="w-1/2">
-          <label
-            htmlFor="subject"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Subject:
-          </label>
-          <select
-            id="subject"
-            value={selectedSubject}
-            onChange={handleSubjectChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Subjects</option>
-            {subjects.map((subject) => (
-              <option key={subject} value={subject}>
-                {subject}
-              </option>
-            ))}
-          </select>
+        <div className="flex space-x-4 mb-4 items-center justify-center content-center">
+          <div className="w-1/2">
+            <label
+              htmlFor="subject"
+              className="block text-gray-700 font-bold mb-2"
+            >
+              Subject:
+            </label>
+            <select
+              id="subject"
+              value={selectedSubject}
+              onChange={handleSubjectChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Subjects</option>
+              {subjects.map((subject) => (
+                <option key={subject} value={subject}>
+                  {subject}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-1/2">
+            <label htmlFor="grade" className="block text-gray-700 font-bold mb-2">
+              Grade:
+            </label>
+            <select
+              id="grade"
+              value={selectedGrade}
+              onChange={handleGradeChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Grades</option>
+              {grades.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
+            </select>
+          </div>
+          <SettingsFlyout hideCompleted={hideCompleted} setHideCompleted={setHideCompleted} />
         </div>
 
-        <div className="w-1/2">
-          <label htmlFor="grade" className="block text-gray-700 font-bold mb-2">
-            Grade:
-          </label>
-          <select
-            id="grade"
-            value={selectedGrade}
-            onChange={handleGradeChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Grades</option>
-            {grades.map((grade) => (
-              <option key={grade} value={grade}>
-                {grade}
-              </option>
-            ))}
-          </select>
-        </div>
-        <SettingsFlyout hideCompleted={hideCompleted} setHideCompleted={setHideCompleted} />
+        <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
+          <TwoPaneSubjectStandardDisplay
+            subjectStandards={filteredSubjectStandards} // Pass as an array
+          />
+        </VisibilityContext.Provider>
       </div>
-
-      <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
-        <TwoPaneSubjectStandardDisplay
-          subjectStandards={filteredSubjectStandards} // Pass as an array
-        />
-      </VisibilityContext.Provider>
-    </div>
+    </ProfileProvider>
   );
 };
 

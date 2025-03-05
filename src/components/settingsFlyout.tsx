@@ -7,8 +7,9 @@ import {
   Checkbox,
   Label,
 } from "@headlessui/react";
-import { CogIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline"; // Added ClipboardDocumentIcon
-import { CheckIcon } from "@heroicons/react/24/outline";
+import { CogIcon, ClipboardDocumentIcon } from "@heroicons/react/24/outline";
+import { useProfile } from "../context/ProfileContext";
+import useStandardMastery from "../hooks/useStandardMastery";
 
 interface SettingsFlyoutProps {
   hideCompleted: boolean;
@@ -19,13 +20,16 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   hideCompleted,
   setHideCompleted,
 }) => {
+  const { selectedProfile, setSelectedProfile } = useProfile();
+  const { createProfile, deleteProfile, getProfiles } = useStandardMastery(selectedProfile);
   const [isOpen, setIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<
     "import" | "export" | "profiles" | null
   >(null);
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null); // State for selected profile
+  const [newProfileName, setNewProfileName] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const buttonRef = useRef(null);
-  const exportDataRef = useRef<HTMLTextAreaElement>(null); // Ref for export textarea
+  const exportDataRef = useRef<HTMLTextAreaElement>(null);
 
   const openModal = (content: "import" | "export" | "profiles") => {
     setModalContent(content);
@@ -35,12 +39,32 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   const closeModal = () => {
     setIsOpen(false);
     setModalContent(null);
-    setSelectedProfile(null); // Reset selected profile on close
+    setNewProfileName("");
+    setConfirmDelete(null);
   };
 
   const handleProfileClick = (profile: string) => {
     setSelectedProfile(profile);
   };
+
+  const handleCreateProfile = () => {
+    if (newProfileName.trim()) {
+      createProfile({ id: newProfileName.trim(), name: newProfileName.trim(), metadata: {} });
+      setSelectedProfile(newProfileName.trim());
+      setNewProfileName("");
+    }
+  };
+
+const handleDeleteProfile = (profile: string) => {
+    // If the profile is not already marked for deletion, mark it for confirmation
+    if (confirmDelete !== profile) {
+        setConfirmDelete(profile);
+    } else {
+        // If the profile is already marked for deletion, proceed with deletion
+        deleteProfile(profile);
+        setConfirmDelete(null);
+    }
+};
 
   const copyToClipboard = () => {
     if (exportDataRef.current) {
@@ -48,6 +72,8 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
       document.execCommand("copy");
     }
   };
+
+  const profiles = getProfiles();
 
   return (
     <div className="relative">
@@ -86,21 +112,24 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                       }
                       className="group block size-4 rounded border bg-white data-[checked]:bg-blue-300"
                     >
-                    <svg
-                      className="stroke-white opacity-0 transition group-data-[checked]:opacity-100"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                    >
-                      <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                      <svg
+                        className="stroke-white opacity-0 transition group-data-[checked]:opacity-100"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                      >
+                        <path
+                          d="M3 8L6 11L11 3.5"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
                     </Checkbox>
-                    <Label>
-                      Hide Completed Standards
-                    </Label>
+                    <Label>Hide Completed Standards</Label>
                   </Field>
                 )}
               </Menu.Item>
-              {/* <Menu.Item>
+              <Menu.Item>
                 {({ active }) => (
                   <button
                     className={`${
@@ -135,7 +164,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                     Profiles
                   </button>
                 )}
-              </Menu.Item> */}
+              </Menu.Item>
             </div>
           </Menu.Items>
         </Transition>
@@ -192,7 +221,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                           Export Data
                         </Dialog.Title>
                         <textarea
-                          ref={exportDataRef} // Attach the ref
+                          ref={exportDataRef}
                           className="w-full mt-4 p-2 border border-gray-300 rounded"
                           rows={5}
                           readOnly
@@ -210,22 +239,55 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                         >
                           Profiles
                         </Dialog.Title>
+                        <div className="mt-4">
+                          <input
+                            type="text"
+                            className="w-full p-2 border border-gray-300 rounded"
+                            placeholder="New profile name"
+                            value={newProfileName}
+                            onChange={(e) => setNewProfileName(e.target.value)}
+                          />
+                          <button
+                            className="mt-2 w-full bg-blue-600 text-white p-2 rounded"
+                            onClick={handleCreateProfile}
+                          >
+                            Create Profile
+                          </button>
+                        </div>
                         <ul className="mt-4">
-                          {["Profile 1", "Profile 2", "Profile 3"].map(
-                            (profile) => (
-                              <li
-                                key={profile}
-                                className={`py-2 border-b border-gray-200 cursor-pointer ${
+                          {Object.keys(profiles).map((profile) => (
+                            <li
+                              key={profile}
+                              className={`flex justify-between items-center p-2 border-b border-gray-200 cursor-pointer ${
+                                selectedProfile === profile
+                                  ? "bg-gray-100"
+                                  : ""
+                              } `}
+                              onClick={() => handleProfileClick(profile)}
+                            >
+                              {profile}
+                              <button
+                                className={`ml-2 text-red-600 border border-red-600 rounded px-2 py-1 transition-all ${
+                                  confirmDelete === profile
+                                    ? "bg-red-600 text-white"
+                                    : "hover:bg-red-600 hover:text-white"
+                                } ${
                                   selectedProfile === profile
-                                    ? "bg-gray-100"
+                                    ? "opacity-50 cursor-not-allowed"
                                     : ""
                                 }`}
-                                onClick={() => handleProfileClick(profile)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteProfile(profile);
+                                }}
+                                disabled={selectedProfile === profile}
                               >
-                                {profile}
-                              </li>
-                            )
-                          )}
+                                {confirmDelete === profile
+                                  ? "Are you sure?"
+                                  : "Delete"}
+                              </button>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     )}
@@ -256,7 +318,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                       <button
                         type="button"
                         className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                        disabled={!selectedProfile} // Disable if no profile selected
+                        disabled={!selectedProfile}
                       >
                         Load
                       </button>

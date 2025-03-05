@@ -2,55 +2,113 @@ import { useState, useEffect } from "react";
 
 export type MasteryStatus = "completed" | "needs_improvement" | "not_started";
 
-const useStandardMastery = () => {
-  const [masteryStatus, setMasteryStatus] = useState<{
-    [subject: string]: {
-      [standardId: string]: MasteryStatus;
+interface Profile {
+  id: string;
+  name: string;
+  metadata: {
+    [key: string]: any;
+  };
+}
+
+const useStandardMastery = (selectedProfileId: string) => {
+  const [profiles, setProfiles] = useState<{
+    [profileId: string]: {
+      masteryStatus: {
+        [subject: string]: {
+          [standardId: string]: MasteryStatus;
+        };
+      };
+      metadata: {
+        [key: string]: any;
+      };
     };
   }>({});
 
   useEffect(() => {
-    const storedMastery = localStorage.getItem("mastery");
-    if (storedMastery) {
-      setMasteryStatus(JSON.parse(storedMastery));
+    const storedProfiles = localStorage.getItem("profiles");
+    if (storedProfiles) {
+      setProfiles(JSON.parse(storedProfiles));
+    } else {
+      setProfiles({ default: { masteryStatus: {}, metadata: {} } });
     }
   }, []);
 
   useEffect(() => {
-    if (Object.keys(masteryStatus).length > 0) {
-      localStorage.setItem("mastery", JSON.stringify(masteryStatus));
+    if (Object.keys(profiles).length > 0) {
+      localStorage.setItem("profiles", JSON.stringify(profiles));
     }
-  }, [masteryStatus]);
+  }, [profiles]);
 
   const updateMastery = (
     subject: string,
     standardId: string,
     status: MasteryStatus
   ) => {
-    console.log("Setting mastery status...")
-    setMasteryStatus((prevStatus) => ({
-      ...prevStatus,
-      [subject]: {
-        ...prevStatus[subject],
-        [standardId]: status,
+    setProfiles((prevProfiles) => ({
+      ...prevProfiles,
+      [selectedProfileId]: {
+        ...prevProfiles[selectedProfileId],
+        masteryStatus: {
+          ...prevProfiles[selectedProfileId].masteryStatus,
+          [subject]: {
+            ...prevProfiles[selectedProfileId].masteryStatus[subject],
+            [standardId]: status,
+          },
+        },
       },
     }));
   };
 
   const clearMastery = (subject: string, standardId: string) => {
-    setMasteryStatus((prevStatus) => {
-        console.log("Clearing mastery status...")
-      const newStatus = { ...prevStatus };
-      delete newStatus[subject][standardId];
-      return newStatus;
+    setProfiles((prevProfiles) => {
+      const newProfiles = { ...prevProfiles };
+      delete newProfiles[selectedProfileId].masteryStatus[subject][standardId];
+      return newProfiles;
     });
   };
 
   const getMastery = (subject: string, standardId: string) => {
-    return masteryStatus[subject]?.[standardId] || "not_started";
+    return (
+      profiles[selectedProfileId]?.masteryStatus[subject]?.[standardId] ||
+      "not_started"
+    );
   };
 
-  return { updateMastery, clearMastery, getMastery };
+  const createProfile = (profile: Profile) => {
+    setProfiles((prevProfiles) => ({
+      ...prevProfiles,
+      [profile.id]: {
+        masteryStatus: {},
+        metadata: profile.metadata,
+      },
+    }));
+  };
+
+  const deleteProfile = (profileId: string) => {
+    setProfiles((prevProfiles) => {
+      const newProfiles = { ...prevProfiles };
+      delete newProfiles[profileId];
+      return newProfiles;
+    });
+  };
+
+  const getProfileMetadata = (profileId: string) => {
+    return profiles[profileId]?.metadata || {};
+  };
+
+  const getProfiles = () => {
+    return profiles;
+  };
+
+  return {
+    updateMastery,
+    clearMastery,
+    getMastery,
+    createProfile,
+    deleteProfile,
+    getProfileMetadata,
+    getProfiles,
+  };
 };
 
 export default useStandardMastery;
