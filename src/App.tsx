@@ -4,6 +4,7 @@ import { SubjectStandard } from "./types";
 import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
 import VisibilityContext from "./context/VisibilityContext";
+import SettingsFlyout from "./components/settingsFlyout";
 
 const getVisibilityStatusFromStorage = () => {
   const storedHideCompleted = localStorage.getItem("hideCompleted");
@@ -40,10 +41,6 @@ const App: React.FC = () => {
 
   const handleGradeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedGrade(event.target.value);
-  };
-
-  const handleHideCompletedChange = () => {
-    setHideCompleted((prevHideCompleted) => !prevHideCompleted);
   };
 
   const filterStandards = () => {
@@ -119,18 +116,7 @@ const App: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="hideCompleted"
-            checked={hideCompleted}
-            onChange={handleHideCompletedChange}
-            className="form-checkbox rounded text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <label htmlFor="hideCompleted" className="text-gray-700">
-            Hide Completed Standards
-          </label>
-        </div>
+        <SettingsFlyout hideCompleted={hideCompleted} setHideCompleted={setHideCompleted} />
       </div>
 
       <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
