@@ -79,12 +79,6 @@ const App: React.FC = () => {
 
         <div className="flex space-x-4 mb-4 items-center justify-center content-center">
           <div className="w-1/2">
-            <label
-              htmlFor="subject"
-              className="block text-gray-700 font-bold mb-2"
-            >
-              Subject:
-            </label>
             <select
               id="subject"
               value={selectedSubject}
@@ -101,9 +95,6 @@ const App: React.FC = () => {
           </div>
 
           <div className="w-1/2">
-            <label htmlFor="grade" className="block text-gray-700 font-bold mb-2">
-              Grade:
-            </label>
             <select
               id="grade"
               value={selectedGrade}
