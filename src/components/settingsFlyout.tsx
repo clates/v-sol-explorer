@@ -227,7 +227,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                         <textarea
                           className="w-full mt-4 p-2 border border-gray-300 rounded"
                           rows={5}
-                          placeholder="Paste your JSON data here..."
+                          placeholder="Not implemented yet :^)"
                         ></textarea>
                       </div>
                     )}
@@ -245,7 +245,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                           rows={5}
                           readOnly
                           value={`{
-  "sample": "data"
+  "sample": "not implemented yet :^) "
 }`}
                         ></textarea>
                       </div>
@@ -278,7 +278,9 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                             <li
                               key={profile}
                               className={`flex justify-between items-center p-2  border-b border-gray-200 ${
-                                selectedProfile === profile ? "bg-gradient-to-r from-green-200 to-transparent to-20%" : "hover:bg-gray-100 cursor-pointer"
+                                selectedProfile === profile
+                                  ? "bg-gradient-to-r from-green-200 to-transparent to-20%"
+                                  : "hover:bg-gray-100 cursor-pointer"
                               } `}
                               onClick={() => handleProfileClick(profile)}
                             >
