@@ -100,6 +100,16 @@ const useStandardMastery = (selectedProfileId: string) => {
     return profiles;
   };
 
+  // I didn't bother to check for collisions here
+  const updateProfileId = (oldProfileId: string, newProfileId: string) => {
+    setProfiles((prevProfiles) => {
+      const { [oldProfileId]: profile, ...restProfiles } = prevProfiles;
+      const updatedProfile = { ...profile, id: newProfileId };
+      const newProfiles = { ...restProfiles, [newProfileId]: updatedProfile };
+      return newProfiles;
+    });
+  };
+
   return {
     updateMastery,
     clearMastery,
@@ -108,6 +118,7 @@ const useStandardMastery = (selectedProfileId: string) => {
     deleteProfile,
     getProfileMetadata,
     getProfiles,
+    updateProfileId,
   };
 };
 

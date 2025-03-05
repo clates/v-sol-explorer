@@ -21,13 +21,16 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   setHideCompleted,
 }) => {
   const { selectedProfile, setSelectedProfile } = useProfile();
-  const { createProfile, deleteProfile, getProfiles } = useStandardMastery(selectedProfile);
+  const { createProfile, deleteProfile, getProfiles, updateProfileId } =
+    useStandardMastery(selectedProfile);
   const [isOpen, setIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<
     "import" | "export" | "profiles" | null
   >(null);
   const [newProfileName, setNewProfileName] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [editingProfile, setEditingProfile] = useState<string | null>(null);
+  const [editedProfileId, setEditedProfileId] = useState("");
   const buttonRef = useRef(null);
   const exportDataRef = useRef<HTMLTextAreaElement>(null);
 
@@ -41,6 +44,8 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
     setModalContent(null);
     setNewProfileName("");
     setConfirmDelete(null);
+    setEditingProfile(null);
+    setEditedProfileId("");
   };
 
   const handleProfileClick = (profile: string) => {
@@ -49,22 +54,36 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
 
   const handleCreateProfile = () => {
     if (newProfileName.trim()) {
-      createProfile({ id: newProfileName.trim(), name: newProfileName.trim(), metadata: {} });
+      createProfile({
+        id: newProfileName.trim(),
+        name: newProfileName.trim(),
+        metadata: {},
+      });
       setSelectedProfile(newProfileName.trim());
       setNewProfileName("");
     }
   };
 
-const handleDeleteProfile = (profile: string) => {
-    // If the profile is not already marked for deletion, mark it for confirmation
+  const handleDeleteProfile = (profile: string) => {
     if (confirmDelete !== profile) {
-        setConfirmDelete(profile);
+      setConfirmDelete(profile);
     } else {
-        // If the profile is already marked for deletion, proceed with deletion
-        deleteProfile(profile);
-        setConfirmDelete(null);
+      deleteProfile(profile);
+      setConfirmDelete(null);
     }
-};
+  };
+
+  const handleEditProfile = (profile: string) => {
+    setEditingProfile(profile);
+    setEditedProfileId(profile);
+  };
+
+  const handleSaveProfile = (profile: string) => {
+    updateProfileId(profile, editedProfileId);
+    setEditingProfile(null);
+    setEditedProfileId("");
+    handleProfileClick(editedProfileId);
+  };
 
   const copyToClipboard = () => {
     if (exportDataRef.current) {
@@ -259,33 +278,90 @@ const handleDeleteProfile = (profile: string) => {
                             <li
                               key={profile}
                               className={`flex justify-between items-center p-2 border-b border-gray-200 cursor-pointer ${
-                                selectedProfile === profile
-                                  ? "bg-gray-100"
-                                  : ""
+                                selectedProfile === profile ? "bg-gray-100" : ""
                               } `}
                               onClick={() => handleProfileClick(profile)}
                             >
-                              {profile}
-                              <button
-                                className={`ml-2 text-red-600 border border-red-600 rounded px-2 py-1 transition-all ${
-                                  confirmDelete === profile
-                                    ? "bg-red-600 text-white"
-                                    : "hover:bg-red-600 hover:text-white"
-                                } ${
-                                  selectedProfile === profile
-                                    ? "opacity-50 cursor-not-allowed"
-                                    : ""
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteProfile(profile);
-                                }}
-                                disabled={selectedProfile === profile}
-                              >
-                                {confirmDelete === profile
-                                  ? "Are you sure?"
-                                  : "Delete"}
-                              </button>
+                              {editingProfile === profile ? (
+                                <input
+                                  type="text"
+                                  value={editedProfileId}
+                                  onChange={(e) =>
+                                    setEditedProfileId(e.target.value)
+                                  }
+                                  className="w-full p-1 border border-gray-300 rounded"
+                                />
+                              ) : (
+                                profile
+                              )}
+                              <div className="flex items-center">
+                                {editingProfile === profile ? (
+                                  <button
+                                    className="ml-2 text-green-600 border border-green-600 rounded px-2 py-1 transition-all"
+                                    onClick={() => handleSaveProfile(profile)}
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth="1.5"
+                                      stroke="currentColor"
+                                      className="size-6"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M5 13l4 4L19 7"
+                                      />
+                                    </svg>
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      className="ml-2 text-blue-600 border border-blue-600 rounded px-2 py-1 transition-all"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditProfile(profile);
+                                      }}
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="1.5"
+                                        stroke="currentColor"
+                                        className="size-6"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                                        />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      className={`ml-2 text-red-600 border border-red-600 rounded px-2 py-1 transition-all ${
+                                        confirmDelete === profile
+                                          ? "bg-red-600 text-white"
+                                          : "hover:bg-red-600 hover:text-white"
+                                      } ${
+                                        selectedProfile === profile
+                                          ? "opacity-50 cursor-not-allowed"
+                                          : ""
+                                      }`}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteProfile(profile);
+                                      }}
+                                      disabled={selectedProfile === profile}
+                                    >
+                                      {confirmDelete === profile
+                                        ? "Are you sure?"
+                                        : "Delete"}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </li>
                           ))}
                         </ul>
