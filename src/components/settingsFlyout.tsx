@@ -100,7 +100,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
         <div>
           <Menu.Button
             ref={buttonRef}
-            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none"
+            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none cursor-pointer"
           >
             <CogIcon className="h-6 w-6 text-gray-700" />
           </Menu.Button>
@@ -153,7 +153,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                   <button
                     className={`${
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700"
-                    } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
                     onClick={() => openModal("import")}
                   >
                     Import Data
@@ -165,7 +165,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                   <button
                     className={`${
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700"
-                    } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
                     onClick={() => openModal("export")}
                   >
                     Export Data
@@ -177,7 +177,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                   <button
                     className={`${
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700"
-                    } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
                     onClick={() => openModal("profiles")}
                   >
                     Profiles
@@ -267,7 +267,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                             onChange={(e) => setNewProfileName(e.target.value)}
                           />
                           <button
-                            className="mt-2 w-full bg-blue-600 text-white p-2 rounded"
+                            className="mt-2 w-full bg-blue-600 text-white p-2 rounded cursor-pointer"
                             onClick={handleCreateProfile}
                           >
                             Create Profile
@@ -277,8 +277,8 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                           {Object.keys(profiles).map((profile) => (
                             <li
                               key={profile}
-                              className={`flex justify-between items-center p-2 border-b border-gray-200 cursor-pointer ${
-                                selectedProfile === profile ? "bg-gray-100" : ""
+                              className={`flex justify-between items-center p-2  border-b border-gray-200 ${
+                                selectedProfile === profile ? "bg-gradient-to-r from-green-200 to-transparent to-20%" : "hover:bg-gray-100 cursor-pointer"
                               } `}
                               onClick={() => handleProfileClick(profile)}
                             >
@@ -297,7 +297,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                               <div className="flex items-center">
                                 {editingProfile === profile ? (
                                   <button
-                                    className="ml-2 text-green-600 border border-green-600 rounded px-2 py-1 transition-all"
+                                    className="ml-2 text-green-600 border border-green-600 hover:bg-green-600 hover:text-white rounded px-2 py-1 transition-all cursor-pointer"
                                     onClick={() => handleSaveProfile(profile)}
                                   >
                                     <svg
@@ -318,7 +318,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                                 ) : (
                                   <>
                                     <button
-                                      className="ml-2 text-blue-600 border border-blue-600 rounded px-2 py-1 transition-all"
+                                      className="ml-2 text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white rounded px-2 py-1 transition-all cursor-pointer"
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleEditProfile(profile);
@@ -343,11 +343,11 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                                       className={`ml-2 text-red-600 border border-red-600 rounded px-2 py-1 transition-all ${
                                         confirmDelete === profile
                                           ? "bg-red-600 text-white"
-                                          : "hover:bg-red-600 hover:text-white"
+                                          : "hover:bg-red-600 hover:text-white "
                                       } ${
                                         selectedProfile === profile
                                           ? "opacity-50 cursor-not-allowed"
-                                          : ""
+                                          : "cursor-pointer"
                                       }`}
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -372,7 +372,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                     {modalContent === "import" && (
                       <button
                         type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto cursor-pointer"
                       >
                         Submit
                       </button>
@@ -380,7 +380,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                     {modalContent === "export" && (
                       <button
                         type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
+                        className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto cursor-pointer"
                         onClick={copyToClipboard}
                       >
                         <ClipboardDocumentIcon
@@ -390,18 +390,9 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                         Copy
                       </button>
                     )}
-                    {modalContent === "profiles" && (
-                      <button
-                        type="button"
-                        className="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 sm:ml-3 sm:w-auto"
-                        disabled={!selectedProfile}
-                      >
-                        Load
-                      </button>
-                    )}
                     <button
                       type="button"
-                      className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                      className="cursor-pointer mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
                       onClick={closeModal}
                     >
                       Close
