@@ -7,8 +7,8 @@ import { useProfile } from "./context/ProfileContext";
 const SubjectStandardDisplay: React.FC<{
   subjectStandard: SubjectStandard;
 }> = ({ subjectStandard }) => {
-  const { selectedProfile } = useProfile();
-  const { updateMastery, getMastery } = useStandardMastery(selectedProfile);
+  const { selectedProfileId } = useProfile();
+  const { updateMastery, getMastery } = useStandardMastery(selectedProfileId);
   const { hideCompleted } = useContext(VisibilityContext);
 
   const metadataLabels: { key: keyof SubjectStandard; color: string }[] = [

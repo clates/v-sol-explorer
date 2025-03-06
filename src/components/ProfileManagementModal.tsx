@@ -12,49 +12,53 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
   isOpen,
   closeModal,
 }) => {
-  const { selectedProfile, setSelectedProfile } = useProfile();
-  const { createProfile, deleteProfile, getProfiles, updateProfileId } =
-    useStandardMastery(selectedProfile);
+  // Updated to use selectedProfileId
+  const { selectedProfileId, setSelectedProfileId } = useProfile();
+  const {
+    createProfile,
+    deleteProfile,
+    getProfiles,
+    updateProfileDisplayName,
+  } = useStandardMastery(selectedProfileId);
+
   const [newProfileName, setNewProfileName] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [editingProfile, setEditingProfile] = useState<string | null>(null);
-  const [editedProfileId, setEditedProfileId] = useState("");
+  const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
+  const [editedProfileName, setEditedProfileName] = useState("");
 
-  const handleProfileClick = (profile: string) => {
-    setSelectedProfile(profile);
+  const handleProfileClick = (profileId: string) => {
+    setSelectedProfileId(profileId);
   };
 
   const handleCreateProfile = () => {
     if (newProfileName.trim()) {
-      createProfile({
-        id: newProfileName.trim(),
+      const newProfileId = createProfile({
         name: newProfileName.trim(),
         metadata: {},
       });
-      setSelectedProfile(newProfileName.trim());
+      setSelectedProfileId(newProfileId);
       setNewProfileName("");
     }
   };
 
-  const handleDeleteProfile = (profile: string) => {
-    if (confirmDelete !== profile) {
-      setConfirmDelete(profile);
+  const handleDeleteProfile = (profileId: string) => {
+    if (confirmDelete !== profileId) {
+      setConfirmDelete(profileId);
     } else {
-      deleteProfile(profile);
+      deleteProfile(profileId);
       setConfirmDelete(null);
     }
   };
 
-  const handleEditProfile = (profile: string) => {
-    setEditingProfile(profile);
-    setEditedProfileId(profile);
+  const handleEditProfile = (profileId: string, currentDisplayName: string) => {
+    setEditingProfileId(profileId);
+    setEditedProfileName(currentDisplayName);
   };
 
-  const handleSaveProfile = (profile: string) => {
-    updateProfileId(profile, editedProfileId);
-    setEditingProfile(null);
-    setEditedProfileId("");
-    handleProfileClick(editedProfileId);
+  const handleSaveProfile = (profileId: string) => {
+    updateProfileDisplayName(profileId, editedProfileName);
+    setEditingProfileId(null);
+    setEditedProfileName("");
   };
 
   const profiles = getProfiles();
@@ -109,31 +113,35 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
                     </button>
                   </div>
                   <ul className="mt-4">
-                    {Object.keys(profiles).map((profile) => (
+                    {profiles.map(({ id, displayName }) => (
                       <li
-                        key={profile}
+                        key={id}
                         className={`flex justify-between items-center p-2 border-b border-gray-200 ${
-                          selectedProfile === profile
+                          selectedProfileId === id
                             ? "bg-gradient-to-r from-green-200 to-transparent to-20%"
                             : "hover:bg-gray-100 cursor-pointer"
                         } `}
-                        onClick={() => handleProfileClick(profile)}
+                        onClick={() => handleProfileClick(id)}
                       >
-                        {editingProfile === profile ? (
+                        {editingProfileId === id ? (
                           <input
                             type="text"
-                            value={editedProfileId}
-                            onChange={(e) => setEditedProfileId(e.target.value)}
+                            value={editedProfileName}
+                            onChange={(e) =>
+                              setEditedProfileName(e.target.value)
+                            }
                             className="w-full p-1 border border-gray-300 rounded"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()} // Prevent triggering profile selection
                           />
                         ) : (
-                          profile
+                          displayName
                         )}
                         <div className="flex items-center">
-                          {editingProfile === profile ? (
+                          {editingProfileId === id ? (
                             <button
                               className="ml-2 text-green-600 border border-green-600 hover:bg-green-600 hover:text-white rounded px-2 py-1 transition-all cursor-pointer"
-                              onClick={() => handleSaveProfile(profile)}
+                              onClick={() => handleSaveProfile(id)}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -155,7 +163,7 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
                               className="ml-2 text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white rounded px-2 py-1 transition-all cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleEditProfile(profile);
+                                handleEditProfile(id, displayName);
                               }}
                             >
                               <svg
@@ -176,23 +184,21 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
                           )}
                           <button
                             className={`ml-2 text-red-600 border border-red-600 rounded px-2 py-1 transition-all ${
-                              confirmDelete === profile
+                              confirmDelete === id
                                 ? "bg-red-600 text-white"
                                 : "hover:bg-red-600 hover:text-white "
                             } ${
-                              selectedProfile === profile
+                              selectedProfileId === id
                                 ? "opacity-50 cursor-not-allowed"
                                 : "cursor-pointer"
                             }`}
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDeleteProfile(profile);
+                              handleDeleteProfile(id);
                             }}
-                            disabled={selectedProfile === profile}
+                            disabled={selectedProfileId === id}
                           >
-                            {confirmDelete === profile
-                              ? "Are you sure?"
-                              : "Delete"}
+                            {confirmDelete === id ? "Are you sure?" : "Delete"}
                           </button>
                         </div>
                       </li>
