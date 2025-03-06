@@ -131,13 +131,11 @@ const AppContent: React.FC = () => {
       </div>
 
       {/* Main content - takes remaining space */}
-      <div className="flex-grow overflow-hidden">
         <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
           <TwoPaneSubjectStandardDisplay
             subjectStandards={filteredSubjectStandards}
           />
         </VisibilityContext.Provider>
-      </div>
     </div>
   );
 };
