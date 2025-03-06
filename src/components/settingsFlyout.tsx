@@ -19,7 +19,6 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   hideCompleted,
   setHideCompleted,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [modalContent, setModalContent] = useState<
     "import" | "export" | "profiles" | null
   >(null);
@@ -28,11 +27,9 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
 
   const openModal = (content: "import" | "export" | "profiles") => {
     setModalContent(content);
-    setIsOpen(true);
   };
 
   const closeModal = () => {
-    setIsOpen(false);
     setModalContent(null);
   };
 

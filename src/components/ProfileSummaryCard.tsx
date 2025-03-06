@@ -12,7 +12,6 @@ interface ProfileSummaryCardProps {
 
 const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
   profileId,
-  compact = false,
   filteredStandards,
 }) => {
   const { selectedProfileId } = useProfile();
