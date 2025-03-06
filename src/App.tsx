@@ -78,8 +78,8 @@ const AppContent: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">
         Virginia SOL Navigator
       </h1>
-      <div className="flex space-x-4 mb-4 items-center justify-center content-center">
-        <div className="w-1/2">
+      <div className="flex justify-between space-x-4 mb-4 items-center">
+        <div className="flex min-w-1/5 flex-col gap-1">
           <select
             id="subject"
             value={selectedSubject}
@@ -93,9 +93,6 @@ const AppContent: React.FC = () => {
               </option>
             ))}
           </select>
-        </div>
-
-        <div className="w-1/2">
           <select
             id="grade"
             value={selectedGrade}
@@ -109,6 +106,9 @@ const AppContent: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+        <div className="grow">
+          <ProfileSummaryCard filteredStandards={filteredSubjectStandards} />
         </div>
         <SettingsFlyout
           hideCompleted={hideCompleted}
@@ -126,9 +126,11 @@ const AppContent: React.FC = () => {
 };
 
 // This component gets the selectedProfileId and passes it to StandardMasteryProvider
-const StandardMasteryWithProfile: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const StandardMasteryWithProfile: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const { selectedProfileId } = useProfile();
-  
+
   return (
     <StandardMasteryProvider selectedProfileId={selectedProfileId}>
       {children}
