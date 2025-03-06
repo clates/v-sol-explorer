@@ -1,14 +1,12 @@
 import React, { useContext } from "react";
 import { SubjectStandard } from "./types";
-import useStandardMastery, { MasteryStatus } from "./hooks/useStandardMastery";
 import VisibilityContext from "./context/VisibilityContext";
-import { useProfile } from "./context/ProfileContext";
+import { MasteryStatus, useStandardMastery } from "./context/StandardMasteryContext";
 
 const SubjectStandardDisplay: React.FC<{
   subjectStandard: SubjectStandard;
 }> = ({ subjectStandard }) => {
-  const { selectedProfileId } = useProfile();
-  const { updateMastery, getMastery } = useStandardMastery(selectedProfileId);
+  const { updateMastery, getMastery } = useStandardMastery();
   const { hideCompleted } = useContext(VisibilityContext);
 
   const metadataLabels: { key: keyof SubjectStandard; color: string }[] = [

@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 export type MasteryStatus = "completed" | "needs_improvement" | "not_started";
 
 interface Profile {
-  displayName: string; // What users see/edit
+  displayName: string;
   masteryStatus: {
     [subject: string]: {
-      // Subject like "Math" or "Computer Science"
-      [standardId: string]: MasteryStatus; // Standard IDs like "k.1", "CS-VA-2017-1.1a"
+      [standardId: string]: MasteryStatus;
     };
   };
   metadata: {
@@ -19,7 +18,34 @@ interface ProfileData {
   [profileId: string]: Profile;
 }
 
-export const useStandardMastery = (selectedProfileId: string) => {
+interface StandardMasteryContextType {
+  profiles: ProfileData;
+  updateMastery: (
+    subject: string,
+    standardId: string,
+    status: MasteryStatus
+  ) => void;
+  clearMastery: (subject: string, standardId: string) => void;
+  getMastery: (subject: string, standardId: string) => MasteryStatus;
+  createProfile: (profileData: { name: string; metadata: any }) => string;
+  deleteProfile: (profileId: string) => void;
+  getProfiles: () => Array<{ id: string; displayName: string }>;
+  updateProfileDisplayName: (profileId: string, newDisplayName: string) => void;
+  getProfileMasteryCount: (profileId: string) => {
+    completed: number;
+    needs_improvement: number;
+    total: number;
+  };
+}
+
+const StandardMasteryContext = createContext<
+  StandardMasteryContextType | undefined
+>(undefined);
+
+export const StandardMasteryProvider: React.FC<{
+  children: React.ReactNode;
+  selectedProfileId: string;
+}> = ({ children, selectedProfileId }) => {
   const [profiles, setProfiles] = useState<ProfileData>({});
 
   // Load profiles from localStorage on mount
@@ -28,13 +54,12 @@ export const useStandardMastery = (selectedProfileId: string) => {
     if (storedProfiles) {
       try {
         const loadedProfiles = JSON.parse(storedProfiles);
-        // Migration for existing profiles
         const migratedProfiles: ProfileData = {};
 
         Object.entries(loadedProfiles).forEach(
           ([id, profileData]: [string, any]) => {
             migratedProfiles[id] = {
-              displayName: profileData.displayName || profileData.id || id, // small bit of migration for old profiles
+              displayName: profileData.displayName || profileData.id || id,
               masteryStatus: profileData.masteryStatus || {},
               metadata: profileData.metadata || {},
             };
@@ -60,6 +85,7 @@ export const useStandardMastery = (selectedProfileId: string) => {
         metadata: {},
       },
     });
+    return defaultId;
   };
 
   // Save profiles to localStorage when they change
@@ -133,7 +159,6 @@ export const useStandardMastery = (selectedProfileId: string) => {
   };
 
   const getMastery = (subject: string, standardId: string) => {
-    // Add better null checking
     if (
       !profiles[selectedProfileId] ||
       !profiles[selectedProfileId].masteryStatus ||
@@ -148,14 +173,13 @@ export const useStandardMastery = (selectedProfileId: string) => {
     );
   };
 
-  // Update getProfileMasteryCount to match new structure
   const getProfileMasteryCount = (profileId: string) => {
     if (!profiles[profileId] || !profiles[profileId].masteryStatus) {
-      return { mastered: 0, learning: 0, total: 0 };
+      return { completed: 0, needs_improvement: 0, total: 0 };
     }
 
-    let mastered = 0;
-    let learning = 0;
+    let completed = 0;
+    let needs_improvement = 0;
     let total = 0;
 
     const masteryStatus = profiles[profileId].masteryStatus;
@@ -163,12 +187,12 @@ export const useStandardMastery = (selectedProfileId: string) => {
     Object.keys(masteryStatus).forEach((subject) => {
       Object.values(masteryStatus[subject]).forEach((status) => {
         total++;
-        if (status === "completed") mastered++;
-        if (status === "needs_improvement") learning++;
+        if (status === "completed") completed++;
+        if (status === "needs_improvement") needs_improvement++;
       });
     });
 
-    return { mastered, learning, total };
+    return { completed, needs_improvement, total };
   };
 
   // Create a new profile with stable UUID
@@ -185,7 +209,7 @@ export const useStandardMastery = (selectedProfileId: string) => {
     return profileId;
   };
 
-  // Delete profile (remains largely unchanged)
+  // Delete profile
   const deleteProfile = (profileId: string) => {
     setProfiles((prevProfiles) => {
       const { [profileId]: _, ...restProfiles } = prevProfiles;
@@ -201,7 +225,7 @@ export const useStandardMastery = (selectedProfileId: string) => {
     }));
   };
 
-  // Update profile display name (replaces updateProfileId)
+  // Update profile display name
   const updateProfileDisplayName = (
     profileId: string,
     newDisplayName: string
@@ -219,30 +243,31 @@ export const useStandardMastery = (selectedProfileId: string) => {
     });
   };
 
-  const updateProfileId = (oldProfileId: string, newProfileId: string) => {
-    setProfiles((prevProfiles) => {
-      const { [oldProfileId]: profile, ...restProfiles } = prevProfiles;
-      if (!profile) return prevProfiles; // Safety check
-
-      // Don't add an id field to the profile object, just create a new entry with the new ID
-      const newProfiles = {
-        ...restProfiles,
-        [newProfileId]: profile, // Keep the same profile structure
-      };
-      return newProfiles;
-    });
-  };
-
-  return {
-    updateMastery,
-    clearMastery,
-    getMastery,
-    createProfile,
-    deleteProfile,
-    getProfiles,
-    updateProfileId,
-    updateProfileDisplayName,
-  };
+  return (
+    <StandardMasteryContext.Provider
+      value={{
+        profiles,
+        updateMastery,
+        clearMastery,
+        getMastery,
+        createProfile,
+        deleteProfile,
+        getProfiles,
+        updateProfileDisplayName,
+        getProfileMasteryCount,
+      }}
+    >
+      {children}
+    </StandardMasteryContext.Provider>
+  );
 };
 
-export default useStandardMastery;
+export const useStandardMastery = () => {
+  const context = useContext(StandardMasteryContext);
+  if (context === undefined) {
+    throw new Error(
+      "useStandardMastery must be used within a StandardMasteryProvider"
+    );
+  }
+  return context;
+};

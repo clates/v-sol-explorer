@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useProfile } from "../context/ProfileContext";
-import useStandardMastery from "../hooks/useStandardMastery";
+import { useStandardMastery } from "../context/StandardMasteryContext";
 
 interface ProfileManagementModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
     deleteProfile,
     getProfiles,
     updateProfileDisplayName,
-  } = useStandardMastery(selectedProfileId);
+  } = useStandardMastery();
 
   const [newProfileName, setNewProfileName] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);

@@ -5,7 +5,9 @@ import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
 import VisibilityContext from "./context/VisibilityContext";
 import SettingsFlyout from "./components/settingsFlyout";
-import { ProfileProvider } from "./context/ProfileContext";
+import { ProfileProvider, useProfile } from "./context/ProfileContext";
+import ProfileSummaryCard from "./components/ProfileSummaryCard";
+import { StandardMasteryProvider } from "./context/StandardMasteryContext";
 
 const getVisibilityStatusFromStorage = () => {
   const storedHideCompleted = localStorage.getItem("hideCompleted");
@@ -15,10 +17,11 @@ const getVisibilityStatusFromStorage = () => {
   return false;
 };
 
-const App: React.FC = () => {
+// The main App component without context dependencies
+const AppContent: React.FC = () => {
   const { standardsData } = useStandardsData({
-    useCache: false,
-  }); // Set useCache to false for testing
+    useCache: true,
+  });
 
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
@@ -71,53 +74,75 @@ const App: React.FC = () => {
   }, [hideCompleted]);
 
   return (
-    <ProfileProvider>
-      <div className="bg-gray-100 min-h-screen max-h-screen p-4 flex flex-col">
-        <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">
-          Virginia SOL Navigator
-        </h1>
-
-        <div className="flex space-x-4 mb-4 items-center justify-center content-center">
-          <div className="w-1/2">
-            <select
-              id="subject"
-              value={selectedSubject}
-              onChange={handleSubjectChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Subjects</option>
-              {subjects.map((subject) => (
-                <option key={subject} value={subject}>
-                  {subject}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="w-1/2">
-            <select
-              id="grade"
-              value={selectedGrade}
-              onChange={handleGradeChange}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Grades</option>
-              {grades.map((grade) => (
-                <option key={grade} value={grade}>
-                  {grade}
-                </option>
-              ))}
-            </select>
-          </div>
-          <SettingsFlyout hideCompleted={hideCompleted} setHideCompleted={setHideCompleted} />
+    <div className="bg-gray-100 min-h-screen max-h-screen p-4 flex flex-col">
+      <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">
+        Virginia SOL Navigator
+      </h1>
+      <div className="flex space-x-4 mb-4 items-center justify-center content-center">
+        <div className="w-1/2">
+          <select
+            id="subject"
+            value={selectedSubject}
+            onChange={handleSubjectChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Subjects</option>
+            {subjects.map((subject) => (
+              <option key={subject} value={subject}>
+                {subject}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
-          <TwoPaneSubjectStandardDisplay
-            subjectStandards={filteredSubjectStandards} // Pass as an array
-          />
-        </VisibilityContext.Provider>
+        <div className="w-1/2">
+          <select
+            id="grade"
+            value={selectedGrade}
+            onChange={handleGradeChange}
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Grades</option>
+            {grades.map((grade) => (
+              <option key={grade} value={grade}>
+                {grade}
+              </option>
+            ))}
+          </select>
+        </div>
+        <SettingsFlyout
+          hideCompleted={hideCompleted}
+          setHideCompleted={setHideCompleted}
+        />
       </div>
+
+      <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
+        <TwoPaneSubjectStandardDisplay
+          subjectStandards={filteredSubjectStandards}
+        />
+      </VisibilityContext.Provider>
+    </div>
+  );
+};
+
+// This component gets the selectedProfileId and passes it to StandardMasteryProvider
+const StandardMasteryWithProfile: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { selectedProfileId } = useProfile();
+  
+  return (
+    <StandardMasteryProvider selectedProfileId={selectedProfileId}>
+      {children}
+    </StandardMasteryProvider>
+  );
+};
+
+// Main app wrapper with all context providers
+const App: React.FC = () => {
+  return (
+    <ProfileProvider>
+      <StandardMasteryWithProfile>
+        <AppContent />
+      </StandardMasteryWithProfile>
     </ProfileProvider>
   );
 };
