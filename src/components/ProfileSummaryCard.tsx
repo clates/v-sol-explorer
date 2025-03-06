@@ -78,7 +78,7 @@ const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden h-[82px] mb-2">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden lg:h-[82px] mb-2">
       <div className="flex h-full">
         {/* Left section - Avatar */}
         <div className="bg-gradient-to-b from-white to-gray-100 h-full w-[82px] flex items-center justify-center">

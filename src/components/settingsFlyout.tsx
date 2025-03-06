@@ -49,7 +49,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
         <div>
           <Menu.Button
             ref={buttonRef}
-            className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none cursor-pointer"
+            className="p-1 lg:p2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none cursor-pointer"
           >
             <CogIcon className="h-6 w-6 text-gray-700" />
           </Menu.Button>

@@ -74,53 +74,70 @@ const AppContent: React.FC = () => {
   }, [hideCompleted]);
 
   return (
-    <div className="bg-gray-100 min-h-screen max-h-screen p-4 flex flex-col">
-      <h1 className="text-3xl font-bold mb-4 text-center text-gray-900">
-        Virginia SOL Navigator
-      </h1>
-      <div className="flex justify-between space-x-4 mb-4 items-center">
-        <div className="flex min-w-1/5 flex-col gap-1">
-          <select
-            id="subject"
-            value={selectedSubject}
-            onChange={handleSubjectChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Subjects</option>
-            {subjects.map((subject) => (
-              <option key={subject} value={subject}>
-                {subject}
-              </option>
-            ))}
-          </select>
-          <select
-            id="grade"
-            value={selectedGrade}
-            onChange={handleGradeChange}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Grades</option>
-            {grades.map((grade) => (
-              <option key={grade} value={grade}>
-                {grade}
-              </option>
-            ))}
-          </select>
+    <div className="bg-gray-100 min-h-screen max-h-screen p-2 lg:p-4 flex flex-col">
+      {/* Compact header section - constrained to ~130px */}
+      <div className="flex flex-col h-[130px] mb-2 lg:mb-4">
+        {/* Title row - smaller and with less margin */}
+        <h1 className="text-lg lg:text-3xl font-bold mb-1 lg:mb-4 text-center text-gray-900">
+          Virginia SOL Navigator
+        </h1>
+
+        {/* Controls row - more compact */}
+        <div className="flex flex-col lg:flex-row  gap-2 lg:gap-4">
+          {/* Left column: Filters */}
+          <div className="flex flex-row lg:flex-col gap-1 flex-shrink-0 w-full lg:w-1/5 ">
+            <select
+              id="subject"
+              value={selectedSubject}
+              onChange={handleSubjectChange}
+              className="border border-gray-300 rounded px-2 lg:px-3 py-1 lg:py2 text-sm lg:text-md focus:outline-none focus:ring-1 lg:focus:ring-2 focus:ring-blue-500 grow"
+            >
+              <option value="">All Subjects</option>
+              {subjects.map((subject) => (
+                <option key={subject} value={subject}>
+                  {subject}
+                </option>
+              ))}
+            </select>
+
+            <select
+              id="grade"
+              value={selectedGrade}
+              onChange={handleGradeChange}
+              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 grow"
+            >
+              <option value="">All Grades</option>
+              {grades.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Middle: Profile Card */}
+          <div className="grow order-3">
+            <ProfileSummaryCard filteredStandards={filteredSubjectStandards} />
+          </div>
+
+          {/* Right: Settings */}
+          <div className="flex-shrink-0 absolute lg:block right-0 top-0 mt-1 mr-1 lg:mt-4 lg:mr-4">
+            <SettingsFlyout
+              hideCompleted={hideCompleted}
+              setHideCompleted={setHideCompleted}
+            />
+          </div>
         </div>
-        <div className="grow">
-          <ProfileSummaryCard filteredStandards={filteredSubjectStandards} />
-        </div>
-        <SettingsFlyout
-          hideCompleted={hideCompleted}
-          setHideCompleted={setHideCompleted}
-        />
       </div>
 
-      <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
-        <TwoPaneSubjectStandardDisplay
-          subjectStandards={filteredSubjectStandards}
-        />
-      </VisibilityContext.Provider>
+      {/* Main content - takes remaining space */}
+      <div className="flex-grow overflow-hidden">
+        <VisibilityContext.Provider value={{ hideCompleted, setHideCompleted }}>
+          <TwoPaneSubjectStandardDisplay
+            subjectStandards={filteredSubjectStandards}
+          />
+        </VisibilityContext.Provider>
+      </div>
     </div>
   );
 };
