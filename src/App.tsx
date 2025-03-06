@@ -83,9 +83,9 @@ const AppContent: React.FC = () => {
         </h1>
 
         {/* Controls row - more compact */}
-        <div className="flex flex-col lg:flex-row  gap-2 lg:gap-4">
+        <div className="flex flex-col lg:flex-row gap-2 lg:gap-4">
           {/* Left column: Filters */}
-          <div className="flex flex-row lg:flex-col gap-1 flex-shrink-0 w-full lg:w-1/5 ">
+          <div className="flex flex-row lg:flex-col gap-1 flex-shrink-0 w-full lg:w-1/5 lg:max-w-64">
             <select
               id="subject"
               value={selectedSubject}
