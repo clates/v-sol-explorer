@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { useProfile } from "../context/ProfileContext";
 import { useStandardMastery } from "../context/StandardMasteryContext";
+import { UserCircleIcon, CheckCircleIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 interface ProfileManagementModalProps {
   isOpen: boolean;
@@ -12,13 +14,13 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
   isOpen,
   closeModal,
 }) => {
-  // Updated to use selectedProfileId
   const { selectedProfileId, setSelectedProfileId } = useProfile();
   const {
     createProfile,
     deleteProfile,
     getProfiles,
     updateProfileDisplayName,
+    getProfileMasteryCount,
   } = useStandardMastery();
 
   const [newProfileName, setNewProfileName] = useState("");
@@ -97,114 +99,134 @@ const ProfileManagementModal: React.FC<ProfileManagementModalProps> = ({
                   >
                     Profiles
                   </Dialog.Title>
+                  
                   <div className="mt-4">
-                    <input
-                      type="text"
-                      className="w-full p-2 border border-gray-300 rounded"
-                      placeholder="New profile name"
-                      value={newProfileName}
-                      onChange={(e) => setNewProfileName(e.target.value)}
-                    />
-                    <button
-                      className="mt-2 w-full bg-blue-600 text-white p-2 rounded cursor-pointer"
-                      onClick={handleCreateProfile}
-                    >
-                      Create Profile
-                    </button>
-                  </div>
-                  <ul className="mt-4">
-                    {profiles.map(({ id, displayName }) => (
-                      <li
-                        key={id}
-                        className={`flex justify-between items-center p-2 border-b border-gray-200 ${
-                          selectedProfileId === id
-                            ? "bg-gradient-to-r from-green-200 to-transparent to-20%"
-                            : "hover:bg-gray-100 cursor-pointer"
-                        } `}
-                        onClick={() => handleProfileClick(id)}
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        className="flex-grow p-2 border border-gray-300 rounded"
+                        placeholder="New profile name"
+                        value={newProfileName}
+                        onChange={(e) => setNewProfileName(e.target.value)}
+                      />
+                      <button
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition-colors cursor-pointer flex-shrink-0"
+                        onClick={handleCreateProfile}
                       >
-                        {editingProfileId === id ? (
-                          <input
-                            type="text"
-                            value={editedProfileName}
-                            onChange={(e) =>
-                              setEditedProfileName(e.target.value)
-                            }
-                            className="w-full p-1 border border-gray-300 rounded"
-                            autoFocus
-                            onClick={(e) => e.stopPropagation()} // Prevent triggering profile selection
-                          />
-                        ) : (
-                          displayName
-                        )}
-                        <div className="flex items-center">
-                          {editingProfileId === id ? (
-                            <button
-                              className="ml-2 text-green-600 border border-green-600 hover:bg-green-600 hover:text-white rounded px-2 py-1 transition-all cursor-pointer"
-                              onClick={() => handleSaveProfile(id)}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="currentColor"
-                                className="size-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </button>
-                          ) : (
-                            <button
-                              className="ml-2 text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white rounded px-2 py-1 transition-all cursor-pointer"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditProfile(id, displayName);
-                              }}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="currentColor"
-                                className="size-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-                                />
-                              </svg>
-                            </button>
-                          )}
-                          <button
-                            className={`ml-2 text-red-600 border border-red-600 rounded px-2 py-1 transition-all ${
-                              confirmDelete === id
-                                ? "bg-red-600 text-white"
-                                : "hover:bg-red-600 hover:text-white "
-                            } ${
-                              selectedProfileId === id
-                                ? "opacity-50 cursor-not-allowed"
-                                : "cursor-pointer"
+                        Create
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 space-y-3 max-h-72 overflow-y-auto">
+                    {profiles.map(({ id, displayName }) => {
+                      const stats = getProfileMasteryCount(id);
+                      const isActive = selectedProfileId === id;
+                      
+                      return (
+                        <div
+                          key={id}
+                          className={`bg-white border rounded-lg shadow-sm transition-all ${
+                            isActive ? "border-emerald-300 ring-2 ring-emerald-200" : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div 
+                            className={`px-3 py-3 flex items-center cursor-pointer ${
+                              editingProfileId === id ? "" : "hover:bg-gray-50"
                             }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProfile(id);
-                            }}
-                            disabled={selectedProfileId === id}
+                            onClick={() => handleProfileClick(id)}
                           >
-                            {confirmDelete === id ? "Are you sure?" : "Delete"}
-                          </button>
+                            <div className="relative">
+                              <UserCircleIcon className={`h-10 w-10 ${isActive ? "text-emerald-500" : "text-gray-400"}`} />
+                              {isActive && (
+                                <CheckCircleIcon 
+                                  className="absolute -bottom-1 -right-1 h-5 w-5 text-emerald-500 bg-white rounded-full" 
+                                />
+                              )}
+                            </div>
+                            
+                            <div className="ml-3 mr-1 flex-grow">
+                              {editingProfileId === id ? (
+                                <input
+                                  type="text"
+                                  value={editedProfileName}
+                                  onChange={(e) => setEditedProfileName(e.target.value)}
+                                  className="w-full p-1 border border-gray-300 rounded"
+                                  autoFocus
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              ) : (
+                                <>
+                                  <div className="font-medium">
+                                    {displayName}
+                                    {isActive && (
+                                      <span className="ml-2 inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                                        Active
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center text-xs text-gray-500 mt-1">
+                                    <span className="text-emerald-700 font-medium mr-1">
+                                      {stats.completed}
+                                    </span> completed,
+                                    <span className="text-amber-500 font-medium mx-1">
+                                      {stats.needs_improvement}
+                                    </span> needs work,
+                                    <span className="text-indigo-500 font-medium mx-1">
+                                      {stats.total - stats.completed - stats.needs_improvement}
+                                    </span> not started
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                            
+                            <div className="flex space-x-1">
+                              {editingProfileId === id ? (
+                                <button
+                                  className="p-1 text-emerald-600 hover:bg-emerald-50 rounded cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSaveProfile(id);
+                                  }}
+                                >
+                                  <CheckCircleIcon className="h-6 w-6" />
+                                </button>
+                              ) : (
+                                <button
+                                  className="p-1 text-blue-600 hover:bg-blue-50 rounded cursor-pointer"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditProfile(id, displayName);
+                                  }}
+                                >
+                                  <PencilSquareIcon className="h-5 w-5" />
+                                </button>
+                              )}
+                              
+                              {!isActive && (
+                                <button
+                                  className={`p-1 rounded cursor-pointer ${
+                                    confirmDelete === id 
+                                      ? "text-white bg-red-500 hover:bg-red-600" 
+                                      : "text-red-500 hover:bg-red-50"
+                                  }`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteProfile(id);
+                                  }}
+                                  disabled={isActive}
+                                >
+                                  <TrashIcon className="h-5 w-5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                      );
+                    })}
+                  </div>
                 </div>
+                
                 <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                   <button
                     type="button"
