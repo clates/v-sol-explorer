@@ -69,24 +69,9 @@ export const StandardMasteryProvider: React.FC<{
         setProfiles(migratedProfiles);
       } catch (e) {
         console.error("Error loading profiles:", e);
-        createDefaultProfile();
       }
-    } else {
-      createDefaultProfile();
     }
   }, []);
-
-  const createDefaultProfile = () => {
-    const defaultId = crypto.randomUUID();
-    setProfiles({
-      [defaultId]: {
-        displayName: "Default",
-        masteryStatus: {},
-        metadata: {},
-      },
-    });
-    return defaultId;
-  };
 
   // Save profiles to localStorage when they change
   useEffect(() => {

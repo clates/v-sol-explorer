@@ -12,7 +12,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [selectedProfileId, setSelectedProfileId] = useState<string>("");
 
-  // Initialize with first profile ID on mount
+  // Initialize with first profile ID on mount or create a default profile if none exists
   useEffect(() => {
     const storedProfiles = localStorage.getItem("profiles");
     if (storedProfiles) {
@@ -21,12 +21,32 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         const firstProfileId = Object.keys(profiles)[0];
         if (firstProfileId) {
           setSelectedProfileId(firstProfileId);
+        } else {
+          createAndSelectDefaultProfile();
         }
       } catch (e) {
         console.error("Error loading profile ID:", e);
+        createAndSelectDefaultProfile();
       }
+    } else {
+      createAndSelectDefaultProfile();
     }
   }, []);
+
+  // Create a minimal default profile just to get an ID
+  const createAndSelectDefaultProfile = () => {
+    const defaultId = crypto.randomUUID();
+    const defaultProfile = {
+      [defaultId]: {
+        displayName: "Student (⚙️ to update)",
+        masteryStatus: {},
+        metadata: {},
+      }
+    };
+    
+    localStorage.setItem("profiles", JSON.stringify(defaultProfile));
+    setSelectedProfileId(defaultId);
+  };
 
   return (
     <ProfileContext.Provider value={{ selectedProfileId, setSelectedProfileId }}>

@@ -4,7 +4,7 @@ import { SubjectStandard } from "./types";
 import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
 import VisibilityContext from "./context/VisibilityContext";
-import SettingsFlyout from "./components/settingsFlyout";
+import SettingsFlyout from "./components/SettingsFlyout";
 import { ProfileProvider, useProfile } from "./context/ProfileContext";
 import ProfileSummaryCard from "./components/ProfileSummaryCard";
 import { StandardMasteryProvider } from "./context/StandardMasteryContext";
