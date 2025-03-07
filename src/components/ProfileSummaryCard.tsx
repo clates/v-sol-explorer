@@ -85,9 +85,9 @@ const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
         </div>
 
         {/* Middle section - Name and Progress bar */}
-        <div className="flex-grow flex flex-col justify-center px-4">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-bold">{profile.displayName}</h2>
+        <div className="flex-grow flex flex-col justify-center px-2 lg:px-4">
+          <div className="flex items-center justify-between mb-2 gap-2">
+            <h2 className="text-sm lg:text-lg whitespace-nowrap text-ellipsis font-bold">{profile.displayName}</h2>
             <span className="text-xs text-gray-500">
               {stats.total} Standards
             </span>
