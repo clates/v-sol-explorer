@@ -1,6 +1,5 @@
 import React, { useState, Fragment, useRef } from "react";
 import {
-  Dialog,
   Transition,
   Menu,
   Field,
@@ -25,7 +24,6 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
     "import" | "export" | "profiles" | null
   >(null);
   const buttonRef = useRef(null);
-  const exportDataRef = useRef<HTMLTextAreaElement>(null);
 
   const openModal = (content: "import" | "export" | "profiles") => {
     setModalContent(content);

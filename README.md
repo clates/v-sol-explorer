@@ -1,16 +1,22 @@
-# Virginia SOL Navigator
+# Virginia SOL Explorer
 
 [Live Version](https://clates.github.io/v-sol-explorer/)
 
-Virginia SOL Navigator is a web application designed to help users explore and master the Virginia Standards of Learning (SOLs) for various subjects and grades.
+Virginia SOL Explorer is a comprehensive tool designed to help homeschool parents and educators track student progress through the Virginia Standards of Learning (SOLs). This application provides an intuitive interface for navigating, understanding, and documenting mastery of educational standards across multiple subjects and grade levels.
 
-## Features
+## Purpose
 
-- **Subject and Grade Filtering**: Easily filter standards by subject and grade to find relevant information.
-- **Mastery Tracking**: Track your progress on each standard with statuses such as "completed", "needs improvement", and "not started".
-- **Profile Management**: Create and manage multiple profiles to track progress separately.
-- **Settings Flyout**: Toggle the visibility of completed standards.
-- **Two-Pane Display**: View standards in a two-pane layout for easy navigation and reading.
+Created specifically for homeschool families and educators in Virginia, this tool helps you:
+
+* **Track learning progress** with a simple three-state mastery system (Completed, Needs Work, Not Started).
+* **Manage multiple student profiles** to monitor each child's individual progress.
+* **Share progress data** between parents/teachers through the import/export feature.
+* **Focus your teaching efforts** by identifying standards that need additional attention.
+* **No account registration or cloud storage required** - all data is stored locally on your device with options to export for backup or sharing between devices.
+
+## Why Use Virginia SOL Explorer?
+
+Whether you're following SOLs as curriculum guidelines, preparing for assessments, or simply ensuring comprehensive educational coverage, this tool provides clear visibility into your homeschooling journey while maintaining the freedom and flexibility that makes home education unique.
 
 ## Installation
 
