@@ -128,9 +128,9 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({
                     type="button"
                     className={`inline-flex w-full justify-center rounded-md ${
                       copySuccess
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-blue-600 hover:bg-blue-500"
-                    } px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto cursor-pointer transition-colors`}
+                        ? "bg-green-600 hover:bg-green-700 lg:w-48"
+                        : "bg-blue-600 hover:bg-blue-500 lg:w-48"
+                    } px-3 py-2 text-sm font-semibold text-white w-auto shadow-sm sm:ml-3 cursor-pointer transition-all duration-700`}
                     onClick={copyToClipboard}
                   >
                     <ClipboardDocumentIcon
