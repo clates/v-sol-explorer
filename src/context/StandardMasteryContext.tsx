@@ -14,7 +14,7 @@ interface Profile {
   };
 }
 
-interface ProfileData {
+export interface ProfileData {
   [profileId: string]: Profile;
 }
 
