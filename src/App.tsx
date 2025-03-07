@@ -164,7 +164,16 @@ const AppContent: React.FC = () => {
 const StandardMasteryWithProfile: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { selectedProfileId } = useProfile();
+  const { selectedProfileId, isProfileLoading } = useProfile();
+
+  if (isProfileLoading) {
+    // Don't render the children until the profile is loaded
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-gray-500">Loading profile data...</div>
+      </div>
+    );
+  }
 
   return (
     <StandardMasteryProvider selectedProfileId={selectedProfileId}>
