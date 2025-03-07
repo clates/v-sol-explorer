@@ -39,7 +39,11 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
     const defaultProfile = {
       [defaultId]: {
         displayName: "Student (⚙️ to update)",
-        masteryStatus: {},
+        masteryStatus: {
+          "Computer Science": {
+            "CS-VA-2017-1.1b": "completed",
+            "CS-VA-2017-1.2a": "needs_improvement"
+          }},
         metadata: {},
       }
     };

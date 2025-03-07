@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SubjectStandard } from "./types";
-import SubjectStandardDisplay from "./GeminiStandard";
+import SubjectStandardDisplay from "./components/SubjectStandardDisplay";
 
 //... (Types remain the same)
 
