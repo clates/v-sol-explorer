@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { SubjectStandard } from "./types";
 import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
@@ -26,9 +26,6 @@ const AppContent: React.FC = () => {
 
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("");
-  const [filteredSubjectStandards, setFilteredSubjectStandards] = useState<
-    SubjectStandard[]
-  >([]);
   const [hideCompleted, setHideCompleted] = useState(
     getVisibilityStatusFromStorage()
   );
@@ -54,12 +51,15 @@ const AppContent: React.FC = () => {
     setShowIntro(false);
   };
 
-  const subjects = [
-    ...new Set(standardsData.map((standard) => standard.subject)),
-  ].sort();
-  const grades = [
-    ...new Set(standardsData.map((standard) => standard.grade)),
-  ].sort();
+  const subjects = useMemo(
+    () =>
+      [...new Set(standardsData.map((standard) => standard.subject))].sort(),
+    [standardsData]
+  );
+  const grades = useMemo(
+    () => [...new Set(standardsData.map((standard) => standard.grade))].sort(),
+    [standardsData]
+  );
 
   const handleSubjectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSubject(event.target.value);
@@ -69,7 +69,7 @@ const AppContent: React.FC = () => {
     setSelectedGrade(event.target.value);
   };
 
-  const filterStandards = () => {
+  const filteredSubjectStandards = useMemo<SubjectStandard[]>(() => {
     let filtered = standardsData;
 
     if (selectedSubject) {
@@ -84,12 +84,8 @@ const AppContent: React.FC = () => {
       );
     }
 
-    setFilteredSubjectStandards(filtered);
-  };
-
-  useEffect(() => {
-    filterStandards();
-  }, [selectedSubject, selectedGrade, standardsData]);
+    return filtered;
+  }, [standardsData, selectedSubject, selectedGrade]);
 
   useEffect(() => {
     localStorage.setItem("hideCompleted", JSON.stringify(hideCompleted));
