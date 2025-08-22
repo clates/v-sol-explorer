@@ -13,6 +13,7 @@ Created specifically for homeschool families and educators in Virginia, this too
 * **Share progress data** between parents/teachers through the import/export feature.
 * **Focus your teaching efforts** by identifying standards that need additional attention.
 * **No account registration or cloud storage required** - all data is stored locally on your device with options to export for backup or sharing between devices.
+* **Gentle first-time tour** explains how everything works and can be reopened from the settings gear.
 
 ## Why Use Virginia SOL Explorer?
 

@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SubjectStandard } from "./types";
 import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
@@ -8,6 +8,7 @@ import SettingsFlyout from "./components/SettingsFlyout";
 import { ProfileProvider, useProfile } from "./context/ProfileContext";
 import ProfileSummaryCard from "./components/ProfileSummaryCard";
 import { StandardMasteryProvider } from "./context/StandardMasteryContext";
+import FirstTimeExperience from "./components/FirstTimeExperience";
 
 const getVisibilityStatusFromStorage = () => {
   const storedHideCompleted = localStorage.getItem("hideCompleted");
@@ -31,6 +32,27 @@ const AppContent: React.FC = () => {
   const [hideCompleted, setHideCompleted] = useState(
     getVisibilityStatusFromStorage()
   );
+  const [showIntro, setShowIntro] = useState(false);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const profileCardRef = useRef<HTMLDivElement>(null);
+
+  const INTRO_COOKIE = "vsol_intro_dismissed";
+
+  const hasSeenIntro = () =>
+    document.cookie
+      .split("; ")
+      .some((row) => row.startsWith(`${INTRO_COOKIE}=true`));
+
+  useEffect(() => {
+    if (!hasSeenIntro()) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  const handleIntroClose = () => {
+    document.cookie = `${INTRO_COOKIE}=true; max-age=31536000; path=/`;
+    setShowIntro(false);
+  };
 
   const subjects = [
     ...new Set(standardsData.map((standard) => standard.subject)),
@@ -117,7 +139,10 @@ const AppContent: React.FC = () => {
 
           {/* Middle: Profile Card */}
           <div className="grow order-3">
-            <ProfileSummaryCard filteredStandards={filteredSubjectStandards} />
+            <ProfileSummaryCard
+              ref={profileCardRef}
+              filteredStandards={filteredSubjectStandards}
+            />
           </div>
 
           {/* Right: Settings */}
@@ -125,6 +150,8 @@ const AppContent: React.FC = () => {
             <SettingsFlyout
               hideCompleted={hideCompleted}
               setHideCompleted={setHideCompleted}
+              openIntro={() => setShowIntro(true)}
+              gearRef={settingsButtonRef}
             />
           </div>
         </div>
@@ -156,6 +183,13 @@ const AppContent: React.FC = () => {
           GitHub
         </a>
       </div>
+
+      <FirstTimeExperience
+        isOpen={showIntro}
+        onClose={handleIntroClose}
+        settingsButtonRef={settingsButtonRef}
+        profileCardRef={profileCardRef}
+      />
     </div>
   );
 };

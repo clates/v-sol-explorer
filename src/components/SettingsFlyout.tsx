@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useRef } from "react";
+import React, { useState, Fragment } from "react";
 import {
   Transition,
   Menu,
@@ -14,16 +14,19 @@ import ImportDataModal from "./ImportDataModal";
 interface SettingsFlyoutProps {
   hideCompleted: boolean;
   setHideCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  openIntro: () => void;
+  gearRef?: React.RefObject<HTMLButtonElement>;
 }
 
 const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   hideCompleted,
   setHideCompleted,
+  openIntro,
+  gearRef,
 }) => {
   const [modalContent, setModalContent] = useState<
     "import" | "export" | "profiles" | null
   >(null);
-  const buttonRef = useRef(null);
 
   const openModal = (content: "import" | "export" | "profiles") => {
     setModalContent(content);
@@ -38,7 +41,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
       <Menu as="div" className="relative inline-block text-left">
         <div>
           <Menu.Button
-            ref={buttonRef}
+            ref={gearRef}
             className="p-1 lg:p2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none cursor-pointer"
           >
             <CogIcon className="h-6 w-6 text-gray-700" />
@@ -120,6 +123,18 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                     onClick={() => openModal("profiles")}
                   >
                     Profiles
+                  </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active ? "bg-gray-100 text-gray-900" : "text-gray-700"
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
+                    onClick={openIntro}
+                  >
+                    Show Tutorial
                   </button>
                 )}
               </Menu.Item>
