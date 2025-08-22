@@ -8,6 +8,7 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
+  Profile,
   ProfileData,
   useStandardMastery,
 } from "../context/StandardMasteryContext";
@@ -90,9 +91,18 @@ const ImportDataModal: React.FC<ImportDataModalProps> = ({
       }
 
       // Check if profiles have required structure
-      for (const [id, profile] of Object.entries(parsed)) {
-        // @ts-ignore - we're validating the structure
-        if (!profile.displayName || typeof profile.masteryStatus !== "object") {
+      for (const [id, profile] of Object.entries(
+        parsed as Record<string, unknown>
+      )) {
+        const p = profile as {
+          displayName?: unknown;
+          masteryStatus?: unknown;
+        };
+        if (
+          typeof p.displayName !== "string" ||
+          typeof p.masteryStatus !== "object" ||
+          p.masteryStatus === null
+        ) {
           setError(`Invalid profile format for ID: ${id}`);
           return;
         }
@@ -178,22 +188,20 @@ const ImportDataModal: React.FC<ImportDataModalProps> = ({
     setProfileComparison(comparison);
   };
 
-  const calculateProfileStats = (profile: any) => {
+  const calculateProfileStats = (profile: Profile) => {
     let completed = 0;
     let needs_improvement = 0;
     let total = 0;
 
-    // @ts-ignore - we've validated the structure
-    const masteryStatus = profile.masteryStatus || {};
+    const masteryStatus = profile.masteryStatus;
 
-    for (const subject of Object.values(masteryStatus)) {
-      // @ts-ignore
-      for (const status of Object.values(subject)) {
+    Object.values(masteryStatus).forEach((subject) => {
+      Object.values(subject).forEach((status) => {
         total++;
         if (status === "completed") completed++;
         if (status === "needs_improvement") needs_improvement++;
-      }
-    }
+      });
+    });
 
     return { completed, needs_improvement, total };
   };
