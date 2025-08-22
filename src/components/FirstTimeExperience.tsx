@@ -46,6 +46,12 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isOpen) {
+      setStep(0);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const gear = settingsButtonRef.current;
     const card = profileCardRef.current;
     const overlay = overlayRef.current;
@@ -103,19 +109,18 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
             opacity: 0,
           },
         ],
-        { duration: 300, easing: "ease-in-out" }
+        { duration: 300, easing: "ease-in-out", fill: "forwards" }
       );
       overlay.animate([{ opacity: 1 }, { opacity: 0 }], {
         duration: 300,
         easing: "ease-in-out",
+        fill: "forwards",
       });
       anim.onfinish = () => {
         onClose();
-        setStep(0);
       };
     } else {
       onClose();
-      setStep(0);
     }
   };
 
