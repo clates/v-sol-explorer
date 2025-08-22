@@ -55,6 +55,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
     const gear = settingsButtonRef.current;
     const card = profileCardRef.current;
     const overlay = overlayRef.current;
+    const panel = panelRef.current;
     if (!overlay) return;
 
     // Reset any previous highlighting
@@ -66,16 +67,23 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
     if (step === 3 && gear) {
       const rect = gear.getBoundingClientRect();
       const radius = Math.max(rect.width, rect.height) * 1.5;
-      overlay.style.background = "rgba(0,0,0,0.6)";
+      overlay.style.background = "rgba(0,0,0,0.5)";
       overlay.style.clipPath = `circle(${radius}px at ${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px)`;
       gear.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
     } else if (step === 4 && card) {
       const rect = card.getBoundingClientRect();
       const right = window.innerWidth - (rect.left + rect.width);
       const bottom = window.innerHeight - (rect.top + rect.height);
-      overlay.style.background = "rgba(0,0,0,0.6)";
+      overlay.style.background = "rgba(0,0,0,0.5)";
       overlay.style.clipPath = `inset(${rect.top}px ${right}px ${bottom}px ${rect.left}px round 12px)`;
       card.classList.add("ring-4", "ring-white", "z-30");
+    } else if (panel) {
+      const rect = panel.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const radius = Math.hypot(rect.width, rect.height) / 2 + 40;
+      overlay.style.background = "rgba(0,0,0,0.4)";
+      overlay.style.clipPath = `circle(${radius}px at ${centerX}px ${centerY}px)`;
     }
 
     return () => {
@@ -133,7 +141,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
           enterFrom="opacity-0"
           enterTo="opacity-100"
         >
-          <div ref={overlayRef} className="fixed inset-0 bg-amber-50/60" />
+          <div ref={overlayRef} className="fixed inset-0" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
