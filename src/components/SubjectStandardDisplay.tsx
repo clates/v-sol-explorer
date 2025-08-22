@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { VariableSizeList } from "react-window";
 import { SubjectStandard } from "../types";
 import VisibilityContext from "../context/VisibilityContext";
 import {
@@ -98,106 +99,129 @@ const SubjectStandardDisplay: React.FC<{
 
       {/* Standards Section */}
       <div className="space-y-4">
-        {subjectStandard.categories.map((category) => (
-          <div
-            key={category.id}
-            className="pb-2 border-b border-gray-100 last:border-0"
-          >
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
-              {category.title}
-            </h3>
+        {subjectStandard.categories.map((category) => {
+          const standardsWithMastery = category.standards
+            .map((standard) => ({
+              standard,
+              mastery: getMastery(subjectStandard.subject, standard.id),
+            }))
+            .filter(
+              ({ mastery }) => !(hideCompleted && mastery === "completed")
+            );
 
-            <ul className="space-y-2">
-              {category.standards.map((standard) => {
-                const mastery = getMastery(
-                  subjectStandard.subject,
-                  standard.id
-                );
+          const getItemSize = (index: number) => {
+            const { standard } = standardsWithMastery[index];
+            const baseHeight = 72;
+            const subCount = standard.substandards?.length ?? 0;
+            return baseHeight + subCount * 20;
+          };
 
-                if (hideCompleted && mastery === "completed") {
-                  return null;
-                }
+          const totalHeight = standardsWithMastery.reduce(
+            (sum, _, idx) => sum + getItemSize(idx),
+            0
+          );
+          const listHeight = Math.min(totalHeight, 400);
 
-                // Determine colors based on mastery status
-                const getBgColor = () => {
-                  switch (mastery) {
-                    case "completed":
-                      return "bg-emerald-50 hover:bg-emerald-100";
-                    case "needs_improvement":
-                      return "bg-amber-50 hover:bg-amber-100";
-                    default:
-                      return "bg-neutral-50 hover:bg-neutral-100";
-                  }
-                };
+          return (
+            <div
+              key={category.id}
+              className="pb-2 border-b border-gray-100 last:border-0"
+            >
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+                {category.title}
+              </h3>
 
-                const getBadgeColor = () => {
-                  switch (mastery) {
-                    case "completed":
-                      return "bg-emerald-200 text-emerald-800";
-                    case "needs_improvement":
-                      return "bg-amber-200 text-amber-800";
-                    default:
-                      return "bg-indigo-100 text-indigo-800";
-                  }
-                };
+              <VariableSizeList
+                height={listHeight}
+                itemCount={standardsWithMastery.length}
+                itemSize={getItemSize}
+                width="100%"
+                innerElementType="ul"
+              >
+                {({ index, style }) => {
+                  const { standard, mastery } = standardsWithMastery[index];
 
-                return (
-                  <li
-                    key={standard.id}
-                    className={`rounded-lg ${getBgColor()} transition-colors duration-200 shadow-sm hover:shadow`}
-                  >
-                    <button
-                      onClick={() =>
-                        handleStandardClick(
-                          subjectStandard.subject,
-                          standard.id,
-                          mastery
-                        )
-                      }
-                      className="w-full text-left p-3 flex flex-col sm:flex-row sm:items-start gap-2"
+                  const getBgColor = () => {
+                    switch (mastery) {
+                      case "completed":
+                        return "bg-emerald-50 hover:bg-emerald-100";
+                      case "needs_improvement":
+                        return "bg-amber-50 hover:bg-amber-100";
+                      default:
+                        return "bg-neutral-50 hover:bg-neutral-100";
+                    }
+                  };
+
+                  const getBadgeColor = () => {
+                    switch (mastery) {
+                      case "completed":
+                        return "bg-emerald-200 text-emerald-800";
+                      case "needs_improvement":
+                        return "bg-amber-200 text-amber-800";
+                      default:
+                        return "bg-indigo-100 text-indigo-800";
+                    }
+                  };
+
+                  return (
+                    <li
+                      style={style}
+                      key={standard.id}
+                      className={`rounded-lg ${getBgColor()} transition-colors duration-200 shadow-sm hover:shadow`}
                     >
-                      <div className="flex-grow">
-                        {/* Standard description */}
-                        <p className="text-gray-800 font-medium">
-                          {standard.description}
-                        </p>
+                      <button
+                        onClick={() =>
+                          handleStandardClick(
+                            subjectStandard.subject,
+                            standard.id,
+                            mastery
+                          )
+                        }
+                        className="w-full text-left p-3 flex flex-col sm:flex-row sm:items-start gap-2"
+                      >
+                        <div className="flex-grow">
+                          {/* Standard description */}
+                          <p className="text-gray-800 font-medium">
+                            {standard.description}
+                          </p>
 
-                        {/* Substandards - if any */}
-                        {standard.substandards &&
-                          standard.substandards.length > 0 && (
-                            <ul className="mt-2 ml-4 space-y-1">
-                              {standard.substandards.map((substandard) => (
-                                <li
-                                  key={substandard.id}
-                                  className="text-sm text-gray-600 list-disc"
-                                >
-                                  {substandard.description}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                      </div>
+                          {/* Substandards - if any */}
+                          {standard.substandards &&
+                            standard.substandards.length > 0 && (
+                              <ul className="mt-2 ml-4 space-y-1">
+                                {standard.substandards.map((substandard) => (
+                                  <li
+                                    key={substandard.id}
+                                    className="text-sm text-gray-600 list-disc"
+                                  >
+                                    {substandard.description}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                        </div>
 
-                      {/* Standard ID and mastery badges - Fixed width on desktop */}
-                      <div className="flex flex-row sm:flex-col items-start space-x-2 sm:space-x-0 sm:space-y-1 mt-1 sm:mt-0 sm:w-24 sm:flex-shrink-0">
-                        <span
-                          className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor()} w-full text-center`}
-                        >
-                          {standard.id}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor()} w-full text-center`}
-                        >
-                          {getMasteryLabel(mastery)}
-                        </span>
-                      </div>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                        {/* Standard ID and mastery badges - Fixed width on desktop */}
+                        <div className="flex flex-row sm:flex-col items-start space-x-2 sm:space-x-0 sm:space-y-1 mt-1 sm:mt-0 sm:w-24 sm:flex-shrink-0">
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor()} w-full text-center`}
+                          >
+                            {standard.id}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs font-medium ${getBadgeColor()} w-full text-center`}
+                          >
+                            {getMasteryLabel(mastery)}
+                          </span>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                }}
+              </VariableSizeList>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
