@@ -2,16 +2,14 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 export type MasteryStatus = "completed" | "needs_improvement" | "not_started";
 
-interface Profile {
+export interface Profile {
   displayName: string;
   masteryStatus: {
     [subject: string]: {
       [standardId: string]: MasteryStatus;
     };
   };
-  metadata: {
-    [key: string]: any;
-  };
+  metadata: Record<string, unknown>;
 }
 
 export interface ProfileData {
@@ -27,7 +25,9 @@ interface StandardMasteryContextType {
   ) => void;
   clearMastery: (subject: string, standardId: string) => void;
   getMastery: (subject: string, standardId: string) => MasteryStatus;
-  createProfile: (profileData: { name: string; metadata: any }) => string;
+  createProfile: (
+    profileData: { name: string; metadata: Record<string, unknown> }
+  ) => string;
   deleteProfile: (profileId: string) => void;
   getProfiles: () => Array<{ id: string; displayName: string }>;
   updateProfileDisplayName: (profileId: string, newDisplayName: string) => void;
@@ -57,11 +57,12 @@ export const StandardMasteryProvider: React.FC<{
         const migratedProfiles: ProfileData = {};
 
         Object.entries(loadedProfiles).forEach(
-          ([id, profileData]: [string, any]) => {
+          ([id, profileData]: [string, unknown]) => {
+            const data = profileData as Partial<Profile> & { id?: string };
             migratedProfiles[id] = {
-              displayName: profileData.displayName || profileData.id || id,
-              masteryStatus: profileData.masteryStatus || {},
-              metadata: profileData.metadata || {},
+              displayName: data.displayName || data.id || id,
+              masteryStatus: data.masteryStatus || {},
+              metadata: data.metadata || {},
             };
           }
         );
@@ -181,7 +182,9 @@ export const StandardMasteryProvider: React.FC<{
   };
 
   // Create a new profile with stable UUID
-  const createProfile = (profileData: { name: string; metadata: any }) => {
+  const createProfile = (
+    profileData: { name: string; metadata: Record<string, unknown> }
+  ) => {
     const profileId = crypto.randomUUID();
     setProfiles((prevProfiles) => ({
       ...prevProfiles,
@@ -197,7 +200,8 @@ export const StandardMasteryProvider: React.FC<{
   // Delete profile
   const deleteProfile = (profileId: string) => {
     setProfiles((prevProfiles) => {
-      const { [profileId]: _, ...restProfiles } = prevProfiles;
+      const restProfiles = { ...prevProfiles };
+      delete restProfiles[profileId];
       return restProfiles;
     });
   };

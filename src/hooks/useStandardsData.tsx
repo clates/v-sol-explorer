@@ -19,7 +19,7 @@ const useStandardsData = ({ useCache = true }) => {
           setStandardsData(parsedData);
           setLoading(false);
           return; // Data loaded from cache
-        } catch (e) {
+        } catch {
           // Handle parsing errors, clear cache if needed
           localStorage.removeItem("standardsData");
           localStorage.removeItem("standardsDataVersion");
