@@ -10,10 +10,8 @@ interface ProfileSummaryCardProps {
   filteredStandards: SubjectStandard[]; // These are subject standards
 }
 
-const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
-  profileId,
-  filteredStandards,
-}) => {
+const ProfileSummaryCard = React.forwardRef<HTMLDivElement, ProfileSummaryCardProps>(
+  ({ profileId, filteredStandards }, ref) => {
   const { selectedProfileId } = useProfile();
   const actualProfileId = profileId || selectedProfileId;
 
@@ -77,7 +75,10 @@ const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden lg:h-[82px] mb-2">
+    <div
+      ref={ref}
+      className="bg-white rounded-lg shadow-md overflow-hidden lg:h-[82px] mb-2"
+    >
       <div className="flex h-full">
         {/* Left section - Avatar */}
         <div className="bg-gradient-to-b from-white to-gray-100 h-full w-[82px] flex items-center justify-center">
@@ -183,6 +184,6 @@ const ProfileSummaryCard: React.FC<ProfileSummaryCardProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default ProfileSummaryCard;

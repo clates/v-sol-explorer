@@ -5,12 +5,13 @@ interface FirstTimeExperienceProps {
   isOpen: boolean;
   onClose: () => void;
   settingsButtonRef: React.RefObject<HTMLButtonElement>;
+  profileCardRef: React.RefObject<HTMLDivElement>;
 }
 
 const slides = [
   {
     title: "Welcome!",
-    body: "Let's take a quick tour so you know where everything lives.",
+    body: "Virginia SOL Explorer helps you see which skills your child has mastered. Let's take a quick tour.",
   },
   {
     title: "Your Info Stays Here",
@@ -25,6 +26,10 @@ const slides = [
     body: "Click the gear in the top corner to add a student or edit a name.",
   },
   {
+    title: "Track progress at a glance",
+    body: "This box fills up as your student works through skills and standards.",
+  },
+  {
     title: "Share profiles",
     body: "Use Export to download a backup file and Import to load it on another computer.",
   },
@@ -34,6 +39,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
   isOpen,
   onClose,
   settingsButtonRef,
+  profileCardRef,
 }) => {
   const [step, setStep] = useState(0);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -41,16 +47,40 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
 
   useEffect(() => {
     const gear = settingsButtonRef.current;
-    if (!gear) return;
-    if (step === 3) {
-      gear.classList.add("ring-4", "ring-orange-400", "animate-pulse", "z-30");
-    } else {
-      gear.classList.remove("ring-4", "ring-orange-400", "animate-pulse", "z-30");
+    const card = profileCardRef.current;
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+
+    // Reset any previous highlighting
+    overlay.style.clipPath = "";
+    overlay.style.background = "";
+    gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+    card?.classList.remove("ring-4", "ring-white", "z-30");
+
+    if (step === 3 && gear) {
+      const rect = gear.getBoundingClientRect();
+      const radius = Math.max(rect.width, rect.height) * 1.5;
+      overlay.style.background = "rgba(0,0,0,0.6)";
+      overlay.style.clipPath = `circle(${radius}px at ${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px)`;
+      gear.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
+    } else if (step === 4 && card) {
+      const rect = card.getBoundingClientRect();
+      const right = window.innerWidth - (rect.left + rect.width);
+      const bottom = window.innerHeight - (rect.top + rect.height);
+      overlay.style.background = "rgba(0,0,0,0.6)";
+      overlay.style.clipPath = `inset(${rect.top}px ${right}px ${bottom}px ${rect.left}px round 12px)`;
+      card.classList.add("ring-4", "ring-white", "z-30");
     }
+
     return () => {
-      gear.classList.remove("ring-4", "ring-orange-400", "animate-pulse", "z-30");
+      gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+      card?.classList.remove("ring-4", "ring-white", "z-30");
+      if (overlay) {
+        overlay.style.clipPath = "";
+        overlay.style.background = "";
+      }
     };
-  }, [step, settingsButtonRef]);
+  }, [step, settingsButtonRef, profileCardRef]);
 
   const next = () => setStep((s) => Math.min(s + 1, slides.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));

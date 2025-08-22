@@ -34,6 +34,7 @@ const AppContent: React.FC = () => {
   );
   const [showIntro, setShowIntro] = useState(false);
   const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const profileCardRef = useRef<HTMLDivElement>(null);
 
   const INTRO_COOKIE = "vsol_intro_dismissed";
 
@@ -138,7 +139,10 @@ const AppContent: React.FC = () => {
 
           {/* Middle: Profile Card */}
           <div className="grow order-3">
-            <ProfileSummaryCard filteredStandards={filteredSubjectStandards} />
+            <ProfileSummaryCard
+              ref={profileCardRef}
+              filteredStandards={filteredSubjectStandards}
+            />
           </div>
 
           {/* Right: Settings */}
@@ -184,6 +188,7 @@ const AppContent: React.FC = () => {
         isOpen={showIntro}
         onClose={handleIntroClose}
         settingsButtonRef={settingsButtonRef}
+        profileCardRef={profileCardRef}
       />
     </div>
   );
