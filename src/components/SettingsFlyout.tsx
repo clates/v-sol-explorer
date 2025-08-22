@@ -1,4 +1,4 @@
-import React, { useState, Fragment, useRef } from "react";
+import React, { useState, Fragment } from "react";
 import {
   Transition,
   Menu,
@@ -15,17 +15,18 @@ interface SettingsFlyoutProps {
   hideCompleted: boolean;
   setHideCompleted: React.Dispatch<React.SetStateAction<boolean>>;
   openIntro: () => void;
+  gearRef?: React.RefObject<HTMLButtonElement>;
 }
 
 const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   hideCompleted,
   setHideCompleted,
   openIntro,
+  gearRef,
 }) => {
   const [modalContent, setModalContent] = useState<
     "import" | "export" | "profiles" | null
   >(null);
-  const buttonRef = useRef(null);
 
   const openModal = (content: "import" | "export" | "profiles") => {
     setModalContent(content);
@@ -40,7 +41,7 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
       <Menu as="div" className="relative inline-block text-left">
         <div>
           <Menu.Button
-            ref={buttonRef}
+            ref={gearRef}
             className="p-1 lg:p2 rounded-full bg-gray-200 hover:bg-gray-300 focus:outline-none cursor-pointer"
           >
             <CogIcon className="h-6 w-6 text-gray-700" />

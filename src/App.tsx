@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SubjectStandard } from "./types";
 import useStandardsData from "./hooks/useStandardsData";
 import TwoPaneSubjectStandardDisplay from "./TwoPaneSubjectStandardDisplay";
@@ -33,6 +33,7 @@ const AppContent: React.FC = () => {
     getVisibilityStatusFromStorage()
   );
   const [showIntro, setShowIntro] = useState(false);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   const INTRO_COOKIE = "vsol_intro_dismissed";
 
@@ -146,6 +147,7 @@ const AppContent: React.FC = () => {
               hideCompleted={hideCompleted}
               setHideCompleted={setHideCompleted}
               openIntro={() => setShowIntro(true)}
+              gearRef={settingsButtonRef}
             />
           </div>
         </div>
@@ -178,7 +180,11 @@ const AppContent: React.FC = () => {
         </a>
       </div>
 
-      <FirstTimeExperience isOpen={showIntro} onClose={handleIntroClose} />
+      <FirstTimeExperience
+        isOpen={showIntro}
+        onClose={handleIntroClose}
+        settingsButtonRef={settingsButtonRef}
+      />
     </div>
   );
 };

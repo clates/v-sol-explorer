@@ -1,12 +1,17 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
 interface FirstTimeExperienceProps {
   isOpen: boolean;
   onClose: () => void;
+  settingsButtonRef: React.RefObject<HTMLButtonElement>;
 }
 
 const slides = [
+  {
+    title: "Welcome!",
+    body: "Let's take a quick tour so you know where everything lives.",
+  },
   {
     title: "Your Info Stays Here",
     body: "This app never connects to the internet. Everything you see or type stays on this computer.",
@@ -28,14 +33,60 @@ const slides = [
 const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
   isOpen,
   onClose,
+  settingsButtonRef,
 }) => {
   const [step, setStep] = useState(0);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const gear = settingsButtonRef.current;
+    if (!gear) return;
+    if (step === 3) {
+      gear.classList.add("ring-4", "ring-orange-400", "animate-pulse", "z-30");
+    } else {
+      gear.classList.remove("ring-4", "ring-orange-400", "animate-pulse", "z-30");
+    }
+    return () => {
+      gear.classList.remove("ring-4", "ring-orange-400", "animate-pulse", "z-30");
+    };
+  }, [step, settingsButtonRef]);
 
   const next = () => setStep((s) => Math.min(s + 1, slides.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
   const finish = () => {
-    onClose();
-    setStep(0);
+    const panel = panelRef.current;
+    const overlay = overlayRef.current;
+    const gear = settingsButtonRef.current;
+    if (panel && overlay && gear) {
+      const gearRect = gear.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      const deltaX =
+        gearRect.left + gearRect.width / 2 - (panelRect.left + panelRect.width / 2);
+      const deltaY =
+        gearRect.top + gearRect.height / 2 - (panelRect.top + panelRect.height / 2);
+      const anim = panel.animate(
+        [
+          { transform: "translate(0,0) scale(1)", opacity: 1 },
+          {
+            transform: `translate(${deltaX}px, ${deltaY}px) scale(0.3)`,
+            opacity: 0,
+          },
+        ],
+        { duration: 300, easing: "ease-in-out" }
+      );
+      overlay.animate([{ opacity: 1 }, { opacity: 0 }], {
+        duration: 300,
+        easing: "ease-in-out",
+      });
+      anim.onfinish = () => {
+        onClose();
+        setStep(0);
+      };
+    } else {
+      onClose();
+      setStep(0);
+    }
   };
 
   return (
@@ -46,11 +97,8 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
           enter="ease-out duration-300"
           enterFrom="opacity-0"
           enterTo="opacity-100"
-          leave="ease-in duration-200"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div ref={overlayRef} className="fixed inset-0 bg-amber-50/60" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
@@ -59,11 +107,11 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
             enter="ease-out duration-300"
             enterFrom="opacity-0 scale-95"
             enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left shadow-xl transition-all">
+            <Dialog.Panel
+              ref={panelRef}
+              className="w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left shadow-xl transition-all"
+            >
               <div className="relative min-h-[150px]">
                 {slides.map((slide, idx) => (
                   <Transition
