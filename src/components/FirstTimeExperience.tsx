@@ -1,4 +1,10 @@
-import React, { Fragment, useState, useEffect, useRef } from "react";
+import React, {
+  Fragment,
+  useState,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
 interface FirstTimeExperienceProps {
@@ -50,8 +56,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
       setStep(0);
     }
   }, [isOpen]);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     const gear = settingsButtonRef.current;
     const card = profileCardRef.current;
     const overlay = overlayRef.current;
@@ -63,9 +68,8 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
     gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
     card?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
 
-    const fade = 120; // width of the gradient fade
-
     if (step === 3 && gear) {
+      const fade = 120; // width of the gradient fade
       const rect = gear.getBoundingClientRect();
       const r = Math.max(rect.width, rect.height) * 1.5;
       const x = rect.left + rect.width / 2;
@@ -75,6 +79,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
         rgba(0,0,0,0.5) ${r + fade}px)`;
       gear.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
     } else if (step === 4 && card) {
+      const fade = 60; // narrower fade for smaller spotlight
       const rect = card.getBoundingClientRect();
       const r = Math.hypot(rect.width, rect.height) / 2;
       const x = rect.left + rect.width / 2;
@@ -84,6 +89,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
         rgba(0,0,0,0.5) ${r + fade}px)`;
       card.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
     } else if (panel) {
+      const fade = 120;
       const rect = panel.getBoundingClientRect();
       const x = rect.left + rect.width / 2;
       const y = rect.top + rect.height / 2;
