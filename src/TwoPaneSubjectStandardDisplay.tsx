@@ -12,25 +12,25 @@ const TwoPaneSubjectStandardDisplay: React.FC<{
   const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
-    const handleScroll = () => {
-      const cards = document.querySelectorAll(".subject-standard-card");
-      for (let i = cards.length - 1; i >= 0; i--) {
-        const card = cards[i];
-        if (card.getBoundingClientRect().top <= 200) {
-          setActiveSection(card.id);
-          break;
-        }
-      }
-    };
+    const container = document.getElementById(STANDARDS_DISPLAY_ID);
+    if (!container) return;
 
-    document
-      .getElementById(STANDARDS_DISPLAY_ID)!
-      .addEventListener("scroll", handleScroll);
-    return () =>
-      document
-        .getElementById(STANDARDS_DISPLAY_ID)!
-        .removeEventListener("scroll", handleScroll);
-  }, []);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { root: container, threshold: 0.1 }
+    );
+
+    const cards = container.querySelectorAll(".subject-standard-card");
+    cards.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
+  }, [subjectStandards]);
 
   return (
     <div className="flex overflow-y-scroll bg-gray-100">

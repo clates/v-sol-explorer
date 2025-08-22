@@ -10,8 +10,8 @@ import { Dialog, Transition } from "@headlessui/react";
 interface FirstTimeExperienceProps {
   isOpen: boolean;
   onClose: () => void;
-  settingsButtonRef: React.RefObject<HTMLButtonElement>;
-  profileCardRef: React.RefObject<HTMLDivElement>;
+  settingsButtonRef: React.RefObject<HTMLButtonElement | null>;
+  profileCardRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const slides = [

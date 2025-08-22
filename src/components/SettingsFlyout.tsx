@@ -15,7 +15,7 @@ interface SettingsFlyoutProps {
   hideCompleted: boolean;
   setHideCompleted: React.Dispatch<React.SetStateAction<boolean>>;
   openIntro: () => void;
-  gearRef?: React.RefObject<HTMLButtonElement>;
+  gearRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
