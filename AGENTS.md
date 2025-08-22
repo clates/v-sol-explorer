@@ -14,6 +14,11 @@ Virginia SOL Explorer is a React + TypeScript application built with Vite.  It h
 - `.github/workflows` – CI configuration.
 - Project configuration files: `vite.config.ts`, `tsconfig*.json`, `eslint.config.js`.
 
+## Development Setup
+- Install dependencies with `bun install`.
+- Start the development server with `bun run dev`.
+- Create a production build with `bun run build` and preview via `bun run preview`.
+
 ## Development Guidelines
 1. **TypeScript & React**
    - Use TypeScript everywhere; avoid `any` when possible.
