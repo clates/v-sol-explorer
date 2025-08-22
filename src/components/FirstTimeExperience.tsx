@@ -57,53 +57,64 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
     }
   }, [isOpen]);
   useLayoutEffect(() => {
-    const gear = settingsButtonRef.current;
-    const card = profileCardRef.current;
-    const overlay = overlayRef.current;
-    const panel = panelRef.current;
-    if (!overlay) return;
+    let frame: number;
+    let gearEl: HTMLButtonElement | null = null;
+    let cardEl: HTMLDivElement | null = null;
+    let overlayEl: HTMLDivElement | null = null;
+    const updateHighlight = () => {
+      gearEl = settingsButtonRef.current;
+      cardEl = profileCardRef.current;
+      overlayEl = overlayRef.current;
+      const panel = panelRef.current;
+      if (!overlayEl || !panel) {
+        frame = requestAnimationFrame(updateHighlight);
+        return;
+      }
 
-    // Reset any previous highlighting
-    overlay.style.background = "";
-    gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
-    card?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+      // Reset any previous highlighting
+      overlayEl.style.background = "";
+      gearEl?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+      cardEl?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
 
-    if (step === 3 && gear) {
-      const fade = 120; // width of the gradient fade
-      const rect = gear.getBoundingClientRect();
-      const r = Math.max(rect.width, rect.height) * 1.5;
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      overlay.style.background = `radial-gradient(circle at ${x}px ${y}px,
-        rgba(0,0,0,0) ${r}px,
-        rgba(0,0,0,0.5) ${r + fade}px)`;
-      gear.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
-    } else if (step === 4 && card) {
-      const fade = 60; // narrower fade for smaller spotlight
-      const rect = card.getBoundingClientRect();
-      const r = Math.hypot(rect.width, rect.height) / 2;
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      overlay.style.background = `radial-gradient(circle at ${x}px ${y}px,
-        rgba(0,0,0,0) ${r}px,
-        rgba(0,0,0,0.5) ${r + fade}px)`;
-      card.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
-    } else if (panel) {
-      const fade = 120;
-      const rect = panel.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      const r = Math.hypot(rect.width, rect.height) / 2 + 40;
-      overlay.style.background = `radial-gradient(circle at ${x}px ${y}px,
-        rgba(0,0,0,0) ${r}px,
-        rgba(0,0,0,0.4) ${r + fade}px)`;
-    }
+      if (step === 3 && gearEl) {
+        const fade = 120; // width of the gradient fade
+        const rect = gearEl.getBoundingClientRect();
+        const r = Math.max(rect.width, rect.height) * 1.5;
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        overlayEl.style.background = `radial-gradient(circle at ${x}px ${y}px,
+          rgba(0,0,0,0) ${r}px,
+          rgba(0,0,0,0.5) ${r + fade}px)`;
+        gearEl.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
+      } else if (step === 4 && cardEl) {
+        const fade = 60; // narrower fade for smaller spotlight
+        const rect = cardEl.getBoundingClientRect();
+        const r = Math.hypot(rect.width, rect.height) / 2;
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        overlayEl.style.background = `radial-gradient(circle at ${x}px ${y}px,
+          rgba(0,0,0,0) ${r}px,
+          rgba(0,0,0,0.5) ${r + fade}px)`;
+        cardEl.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
+      } else {
+        const fade = 120;
+        const rect = panel.getBoundingClientRect();
+        const x = rect.left + rect.width / 2;
+        const y = rect.top + rect.height / 2;
+        const r = Math.hypot(rect.width, rect.height) / 2 + 40;
+        overlayEl.style.background = `radial-gradient(circle at ${x}px ${y}px,
+          rgba(0,0,0,0) ${r}px,
+          rgba(0,0,0,0.4) ${r + fade}px)`;
+      }
+    };
 
+    frame = requestAnimationFrame(updateHighlight);
     return () => {
-      gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
-      card?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
-      if (overlay) {
-        overlay.style.background = "";
+      cancelAnimationFrame(frame);
+      gearEl?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+      cardEl?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+      if (overlayEl) {
+        overlayEl.style.background = "";
       }
     };
   }, [step, isOpen, settingsButtonRef, profileCardRef]);
