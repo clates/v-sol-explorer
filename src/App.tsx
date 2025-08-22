@@ -8,6 +8,7 @@ import SettingsFlyout from "./components/SettingsFlyout";
 import { ProfileProvider, useProfile } from "./context/ProfileContext";
 import ProfileSummaryCard from "./components/ProfileSummaryCard";
 import { StandardMasteryProvider } from "./context/StandardMasteryContext";
+import FirstTimeExperience from "./components/FirstTimeExperience";
 
 const getVisibilityStatusFromStorage = () => {
   const storedHideCompleted = localStorage.getItem("hideCompleted");
@@ -31,6 +32,25 @@ const AppContent: React.FC = () => {
   const [hideCompleted, setHideCompleted] = useState(
     getVisibilityStatusFromStorage()
   );
+  const [showIntro, setShowIntro] = useState(false);
+
+  const INTRO_COOKIE = "vsol_intro_dismissed";
+
+  const hasSeenIntro = () =>
+    document.cookie
+      .split("; ")
+      .some((row) => row.startsWith(`${INTRO_COOKIE}=true`));
+
+  useEffect(() => {
+    if (!hasSeenIntro()) {
+      setShowIntro(true);
+    }
+  }, []);
+
+  const handleIntroClose = () => {
+    document.cookie = `${INTRO_COOKIE}=true; max-age=31536000; path=/`;
+    setShowIntro(false);
+  };
 
   const subjects = [
     ...new Set(standardsData.map((standard) => standard.subject)),
@@ -125,6 +145,7 @@ const AppContent: React.FC = () => {
             <SettingsFlyout
               hideCompleted={hideCompleted}
               setHideCompleted={setHideCompleted}
+              openIntro={() => setShowIntro(true)}
             />
           </div>
         </div>
@@ -156,6 +177,8 @@ const AppContent: React.FC = () => {
           GitHub
         </a>
       </div>
+
+      <FirstTimeExperience isOpen={showIntro} onClose={handleIntroClose} />
     </div>
   );
 };

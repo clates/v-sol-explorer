@@ -14,11 +14,13 @@ import ImportDataModal from "./ImportDataModal";
 interface SettingsFlyoutProps {
   hideCompleted: boolean;
   setHideCompleted: React.Dispatch<React.SetStateAction<boolean>>;
+  openIntro: () => void;
 }
 
 const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   hideCompleted,
   setHideCompleted,
+  openIntro,
 }) => {
   const [modalContent, setModalContent] = useState<
     "import" | "export" | "profiles" | null
@@ -120,6 +122,18 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                     onClick={() => openModal("profiles")}
                   >
                     Profiles
+                  </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active ? "bg-gray-100 text-gray-900" : "text-gray-700"
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
+                    onClick={openIntro}
+                  >
+                    Show Tutorial
                   </button>
                 )}
               </Menu.Item>
