@@ -59,42 +59,48 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
     if (!overlay) return;
 
     // Reset any previous highlighting
-    overlay.style.clipPath = "";
     overlay.style.background = "";
     gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
-    card?.classList.remove("ring-4", "ring-white", "z-30");
+    card?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
+
+    const fade = 120; // width of the gradient fade
 
     if (step === 3 && gear) {
       const rect = gear.getBoundingClientRect();
-      const radius = Math.max(rect.width, rect.height) * 1.5;
-      overlay.style.background = "rgba(0,0,0,0.5)";
-      overlay.style.clipPath = `circle(${radius}px at ${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px)`;
+      const r = Math.max(rect.width, rect.height) * 1.5;
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      overlay.style.background = `radial-gradient(circle at ${x}px ${y}px,
+        rgba(0,0,0,0) ${r}px,
+        rgba(0,0,0,0.5) ${r + fade}px)`;
       gear.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
     } else if (step === 4 && card) {
       const rect = card.getBoundingClientRect();
-      const right = window.innerWidth - (rect.left + rect.width);
-      const bottom = window.innerHeight - (rect.top + rect.height);
-      overlay.style.background = "rgba(0,0,0,0.5)";
-      overlay.style.clipPath = `inset(${rect.top}px ${right}px ${bottom}px ${rect.left}px round 12px)`;
-      card.classList.add("ring-4", "ring-white", "z-30");
+      const r = Math.hypot(rect.width, rect.height) / 2;
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      overlay.style.background = `radial-gradient(circle at ${x}px ${y}px,
+        rgba(0,0,0,0) ${r}px,
+        rgba(0,0,0,0.5) ${r + fade}px)`;
+      card.classList.add("ring-4", "ring-white", "animate-pulse", "z-30");
     } else if (panel) {
       const rect = panel.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const radius = Math.hypot(rect.width, rect.height) / 2 + 40;
-      overlay.style.background = "rgba(0,0,0,0.4)";
-      overlay.style.clipPath = `circle(${radius}px at ${centerX}px ${centerY}px)`;
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      const r = Math.hypot(rect.width, rect.height) / 2 + 40;
+      overlay.style.background = `radial-gradient(circle at ${x}px ${y}px,
+        rgba(0,0,0,0) ${r}px,
+        rgba(0,0,0,0.4) ${r + fade}px)`;
     }
 
     return () => {
       gear?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
-      card?.classList.remove("ring-4", "ring-white", "z-30");
+      card?.classList.remove("ring-4", "ring-white", "animate-pulse", "z-30");
       if (overlay) {
-        overlay.style.clipPath = "";
         overlay.style.background = "";
       }
     };
-  }, [step, settingsButtonRef, profileCardRef]);
+  }, [step, isOpen, settingsButtonRef, profileCardRef]);
 
   const next = () => setStep((s) => Math.min(s + 1, slides.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
@@ -141,7 +147,7 @@ const FirstTimeExperience: React.FC<FirstTimeExperienceProps> = ({
           enterFrom="opacity-0"
           enterTo="opacity-100"
         >
-          <div ref={overlayRef} className="fixed inset-0" />
+          <div ref={overlayRef} className="pointer-events-none fixed inset-0" />
         </Transition.Child>
 
         <div className="fixed inset-0 flex items-center justify-center p-4">
