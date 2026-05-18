@@ -2,11 +2,16 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 
 export type MasteryStatus = "completed" | "needs_improvement" | "not_started";
 
+export interface MasteryEntry {
+  status: MasteryStatus;
+  updatedAt: string | null;
+}
+
 export interface Profile {
   displayName: string;
   masteryStatus: {
     [subject: string]: {
-      [standardId: string]: MasteryStatus;
+      [standardId: string]: MasteryEntry;
     };
   };
   metadata: Record<string, unknown>;
@@ -25,6 +30,7 @@ interface StandardMasteryContextType {
   ) => void;
   clearMastery: (subject: string, standardId: string) => void;
   getMastery: (subject: string, standardId: string) => MasteryStatus;
+  getMasteryEntry: (subject: string, standardId: string) => MasteryEntry;
   createProfile: (
     profileData: { name: string; metadata: Record<string, unknown> }
   ) => string;
@@ -42,6 +48,46 @@ const StandardMasteryContext = createContext<
   StandardMasteryContextType | undefined
 >(undefined);
 
+function migrateProfileData(id: string, profileData: unknown): Profile {
+  const data = profileData as Partial<Profile> & { id?: string };
+  const rawMastery = (data.masteryStatus || {}) as Record<
+    string,
+    Record<string, unknown>
+  >;
+  const metadata = data.metadata || {};
+  const schemaVersion = (metadata as Record<string, unknown>).schemaVersion;
+
+  if (typeof schemaVersion === "number" && schemaVersion >= 2) {
+    return {
+      displayName: data.displayName || data.id || id,
+      masteryStatus: rawMastery as Profile["masteryStatus"],
+      metadata,
+    };
+  }
+
+  // Coerce plain strings → MasteryEntry
+  const migratedMastery: Profile["masteryStatus"] = {};
+  Object.entries(rawMastery).forEach(([subject, standards]) => {
+    migratedMastery[subject] = {};
+    Object.entries(standards).forEach(([standardId, value]) => {
+      if (typeof value === "string") {
+        migratedMastery[subject][standardId] = {
+          status: value as MasteryStatus,
+          updatedAt: null,
+        };
+      } else {
+        migratedMastery[subject][standardId] = value as MasteryEntry;
+      }
+    });
+  });
+
+  return {
+    displayName: data.displayName || data.id || id,
+    masteryStatus: migratedMastery,
+    metadata: { ...metadata, schemaVersion: 2 },
+  };
+}
+
 export const StandardMasteryProvider: React.FC<{
   children: React.ReactNode;
   selectedProfileId: string;
@@ -55,18 +101,11 @@ export const StandardMasteryProvider: React.FC<{
       try {
         const loadedProfiles = JSON.parse(storedProfiles);
         const migratedProfiles: ProfileData = {};
-
         Object.entries(loadedProfiles).forEach(
           ([id, profileData]: [string, unknown]) => {
-            const data = profileData as Partial<Profile> & { id?: string };
-            migratedProfiles[id] = {
-              displayName: data.displayName || data.id || id,
-              masteryStatus: data.masteryStatus || {},
-              metadata: data.metadata || {},
-            };
+            migratedProfiles[id] = migrateProfileData(id, profileData);
           }
         );
-
         setProfiles(migratedProfiles);
       } catch (e) {
         console.error("Error loading profiles:", e);
@@ -87,14 +126,10 @@ export const StandardMasteryProvider: React.FC<{
     status: MasteryStatus
   ) => {
     setProfiles((prevProfiles) => {
-      // Safety check
       if (!prevProfiles[selectedProfileId]) return prevProfiles;
-
-      // Create subject object if it doesn't exist
       const currentMasteryStatus =
         prevProfiles[selectedProfileId].masteryStatus || {};
       const subjectStatus = currentMasteryStatus[subject] || {};
-
       return {
         ...prevProfiles,
         [selectedProfileId]: {
@@ -103,7 +138,10 @@ export const StandardMasteryProvider: React.FC<{
             ...currentMasteryStatus,
             [subject]: {
               ...subjectStatus,
-              [standardId]: status,
+              [standardId]: {
+                status,
+                updatedAt: new Date().toISOString(),
+              },
             },
           },
         },
@@ -113,7 +151,6 @@ export const StandardMasteryProvider: React.FC<{
 
   const clearMastery = (subject: string, standardId: string) => {
     setProfiles((prevProfiles) => {
-      // Safety check
       if (
         !prevProfiles[selectedProfileId] ||
         !prevProfiles[selectedProfileId].masteryStatus ||
@@ -121,17 +158,11 @@ export const StandardMasteryProvider: React.FC<{
       ) {
         return prevProfiles;
       }
-
-      // Create a new object to avoid direct mutations
       const newProfiles = { ...prevProfiles };
       const newSubjectStatus = {
         ...newProfiles[selectedProfileId].masteryStatus[subject],
       };
-
-      // Delete the standard's status
       delete newSubjectStatus[standardId];
-
-      // Update the profiles with the modified subject status
       newProfiles[selectedProfileId] = {
         ...newProfiles[selectedProfileId],
         masteryStatus: {
@@ -139,52 +170,47 @@ export const StandardMasteryProvider: React.FC<{
           [subject]: newSubjectStatus,
         },
       };
-
       return newProfiles;
     });
   };
 
-  const getMastery = (subject: string, standardId: string) => {
-    if (
-      !profiles[selectedProfileId] ||
-      !profiles[selectedProfileId].masteryStatus ||
-      !profiles[selectedProfileId].masteryStatus[subject]
-    ) {
-      return "not_started";
-    }
+  const getMastery = (subject: string, standardId: string): MasteryStatus => {
+    const entry =
+      profiles[selectedProfileId]?.masteryStatus?.[subject]?.[standardId];
+    return entry?.status ?? "not_started";
+  };
 
-    return (
-      profiles[selectedProfileId].masteryStatus[subject][standardId] ||
-      "not_started"
-    );
+  const getMasteryEntry = (
+    subject: string,
+    standardId: string
+  ): MasteryEntry => {
+    const entry =
+      profiles[selectedProfileId]?.masteryStatus?.[subject]?.[standardId];
+    return entry ?? { status: "not_started", updatedAt: null };
   };
 
   const getProfileMasteryCount = (profileId: string) => {
     if (!profiles[profileId] || !profiles[profileId].masteryStatus) {
       return { completed: 0, needs_improvement: 0, total: 0 };
     }
-
     let completed = 0;
     let needs_improvement = 0;
     let total = 0;
-
     const masteryStatus = profiles[profileId].masteryStatus;
-
     Object.keys(masteryStatus).forEach((subject) => {
-      Object.values(masteryStatus[subject]).forEach((status) => {
+      Object.values(masteryStatus[subject]).forEach((entry) => {
         total++;
-        if (status === "completed") completed++;
-        if (status === "needs_improvement") needs_improvement++;
+        if (entry.status === "completed") completed++;
+        if (entry.status === "needs_improvement") needs_improvement++;
       });
     });
-
     return { completed, needs_improvement, total };
   };
 
-  // Create a new profile with stable UUID
-  const createProfile = (
-    profileData: { name: string; metadata: Record<string, unknown> }
-  ) => {
+  const createProfile = (profileData: {
+    name: string;
+    metadata: Record<string, unknown>;
+  }) => {
     const profileId = crypto.randomUUID();
     setProfiles((prevProfiles) => ({
       ...prevProfiles,
@@ -197,7 +223,6 @@ export const StandardMasteryProvider: React.FC<{
     return profileId;
   };
 
-  // Delete profile
   const deleteProfile = (profileId: string) => {
     setProfiles((prevProfiles) => {
       const restProfiles = { ...prevProfiles };
@@ -206,7 +231,6 @@ export const StandardMasteryProvider: React.FC<{
     });
   };
 
-  // Get all profiles with their IDs for display
   const getProfiles = () => {
     return Object.entries(profiles).map(([id, profile]) => ({
       id,
@@ -214,14 +238,12 @@ export const StandardMasteryProvider: React.FC<{
     }));
   };
 
-  // Update profile display name
   const updateProfileDisplayName = (
     profileId: string,
     newDisplayName: string
   ) => {
     setProfiles((prevProfiles) => {
       if (!prevProfiles[profileId]) return prevProfiles;
-
       return {
         ...prevProfiles,
         [profileId]: {
@@ -239,6 +261,7 @@ export const StandardMasteryProvider: React.FC<{
         updateMastery,
         clearMastery,
         getMastery,
+        getMasteryEntry,
         createProfile,
         deleteProfile,
         getProfiles,
