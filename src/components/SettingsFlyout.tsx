@@ -10,6 +10,7 @@ import { CogIcon } from "@heroicons/react/24/outline";
 import ProfileManagementModal from "./ProfileManagementModal";
 import ExportDataModal from "./ExportDataModal";
 import ImportDataModal from "./ImportDataModal";
+import ReportModal from "./ReportModal";
 
 interface SettingsFlyoutProps {
   hideCompleted: boolean;
@@ -25,10 +26,12 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
   gearRef,
 }) => {
   const [modalContent, setModalContent] = useState<
-    "import" | "export" | "profiles" | null
+    "import" | "export" | "profiles" | "report" | null
   >(null);
 
-  const openModal = (content: "import" | "export" | "profiles") => {
+  const openModal = (
+    content: "import" | "export" | "profiles" | "report"
+  ) => {
     setModalContent(content);
   };
 
@@ -120,6 +123,18 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
                     className={`${
                       active ? "bg-gray-100 text-gray-900" : "text-gray-700"
                     } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
+                    onClick={() => openModal("report")}
+                  >
+                    Progress Report
+                  </button>
+                )}
+              </Menu.Item>
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    className={`${
+                      active ? "bg-gray-100 text-gray-900" : "text-gray-700"
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer`}
                     onClick={() => openModal("profiles")}
                   >
                     Profiles
@@ -148,13 +163,17 @@ const SettingsFlyout: React.FC<SettingsFlyoutProps> = ({
         isOpen={modalContent === "profiles"}
         closeModal={closeModal}
       />
-      <ExportDataModal 
-        isOpen={modalContent === "export"} 
-        closeModal={closeModal} 
+      <ExportDataModal
+        isOpen={modalContent === "export"}
+        closeModal={closeModal}
       />
-      <ImportDataModal 
-        isOpen={modalContent === "import"} 
-        closeModal={closeModal} 
+      <ImportDataModal
+        isOpen={modalContent === "import"}
+        closeModal={closeModal}
+      />
+      <ReportModal
+        isOpen={modalContent === "report"}
+        closeModal={closeModal}
       />
     </div>
   );

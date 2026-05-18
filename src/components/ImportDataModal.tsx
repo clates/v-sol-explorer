@@ -196,8 +196,9 @@ const ImportDataModal: React.FC<ImportDataModalProps> = ({
     const masteryStatus = profile.masteryStatus;
 
     Object.values(masteryStatus).forEach((subject) => {
-      Object.values(subject).forEach((status) => {
+      Object.values(subject).forEach((entry) => {
         total++;
+        const status = typeof entry === "string" ? entry : entry.status;
         if (status === "completed") completed++;
         if (status === "needs_improvement") needs_improvement++;
       });
